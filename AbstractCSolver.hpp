@@ -20,6 +20,8 @@ class AbstractCSolver{
 	bool rkLast;
 	bool endFlag;
 
+	int Nx, Ny, N;
+
 	int timeStep;
 	double time;
 

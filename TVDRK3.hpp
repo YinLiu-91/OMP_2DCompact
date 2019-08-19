@@ -18,8 +18,10 @@ class TVDRK3:public AbstractRK{
 
 	    this->cs = cs;
 	    baseDirection = cs->baseDirection;
-	    mpiRank = cs->mpiRank;
-	
+
+	    Nx = cs->Nx;
+	    Ny = cs->Ny;
+	    N  = cs->N;
 
 	    a1 = 1.0;
 	    a2 = 3.0/4.0;

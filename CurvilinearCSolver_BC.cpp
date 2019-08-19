@@ -16,7 +16,7 @@ void CurvilinearCSolver::setInitialConditions(){
     if( bc->bcX0 == Options::SPONGE || \
         bc->bcX1 == Options::SPONGE || \
         bc->bcY0 == Options::SPONGE || \
-        bc->bcY1 == Options::SPONGE || \
+        bc->bcY1 == Options::SPONGE){
         spongeFlag = true;
         spg = new SpongeBC(msh, dom, ig, bc, opt);
     }else{
@@ -24,7 +24,7 @@ void CurvilinearCSolver::setInitialConditions(){
     }
 
     //just do the simple stuff in a loop...
-    FOR_XYZ_YPEN{
+    FOR_XY{
 	U[ip]	 = U0[ip];
 	V[ip] 	 = V0[ip];
 	p[ip]	 = p0[ip];
@@ -66,7 +66,7 @@ void CurvilinearCSolver::setInitialConditions(){
             rhoV1[ip] = 0.0;
 	    if(bc->bcX0 == Options::ADIABATIC_WALL){
 
-		int index[10] = FILL_GETMAJIND_YPEN_Xp;
+		int index[10] = FILL_GET_Xp;
 		double T_out[10];
 		getDataFromIndex(T, index, 10, T_out);
                 T[ip] = derivX->calcNeumann(T_out);
@@ -85,7 +85,7 @@ void CurvilinearCSolver::setInitialConditions(){
             rhoV1[ip] = 0.0;
 	    if(bc->bcX1 == Options::CONST_T_WALL){
 
-		int index[10] = FILL_GETMAJIND_YPEN_Xm;
+		int index[10] = FILL_GET_Xm;
 	 	double T_out[10];
 		getDataFromIndex(T, index, 10, T_out);
                 T[ip] = derivX->calcNeumann(T_out);
@@ -103,7 +103,7 @@ void CurvilinearCSolver::setInitialConditions(){
             rhoV1[ip] = 0.0;
 	    if(bc->bcY0 == Options::ADIABATIC_WALL){
 
-		int index[10] = FILL_GETMAJIND_YPEN_Yp;
+		int index[10] = FILL_GET_Yp;
 		double T_out[10];
 		getDataFromIndex(T, index, 10, T_out);
 	        T[ip] = derivY->calcNeumann(T_out);
@@ -121,7 +121,7 @@ void CurvilinearCSolver::setInitialConditions(){
             rhoV1[ip] = 0.0;
 	    if(bc->bcY1 == Options::ADIABATIC_WALL){
 
-		int index[10] = FILL_GETMAJIND_YPEN_Ym;
+		int index[10] = FILL_GET_Ym;
 		double T_out[10];
 		getDataFromIndex(T, index, 10, T_out);
 	        T[ip] = derivY->calcNeumann(T_out);
@@ -142,7 +142,7 @@ void CurvilinearCSolver::setInitialConditions(){
             rhoU1[ip] = 0.0;
             rhoV1[ip] = rho1[ip]*X0WallV;
 
-	    int index[10] = FILL_GETMAJIND_YPEN_Xp;
+	    int index[10] = FILL_GET_Xp;
 	    double T_out[10];
 	    getDataFromIndex(T, index, 10, T_out);
             T[ip] = derivX->calcNeumann(T_out);
@@ -158,7 +158,7 @@ void CurvilinearCSolver::setInitialConditions(){
             rhoU1[ip] = 0.0;
             rhoV1[ip] = rho1[ip]*X1WallV;
 
-	    int index[10] = FILL_GETMAJIND_YPEN_Xm;
+	    int index[10] = FILL_GET_Xm;
 	    double T_out[10];
 	    getDataFromIndex(T, index, 10, T_out);
             T[ip] = derivX->calcNeumann(T_out);
@@ -174,7 +174,7 @@ void CurvilinearCSolver::setInitialConditions(){
             rhoU1[ip] = rho1[ip]*Y0WallU;
             rhoV1[ip] = 0.0;
 
-	    int index[10] = FILL_GETMAJIND_YPEN_Yp;
+	    int index[10] = FILL_GET_Yp;
 	    double T_out[10];
 	    getDataFromIndex(T, index, 10, T_out);
             T[ip] = derivY->calcNeumann(T_out);
@@ -191,7 +191,7 @@ void CurvilinearCSolver::setInitialConditions(){
             rhoU1[ip] = rho1[ip]*Y1WallU;
             rhoV1[ip] = 0.0;
 
-	    int index[10] = FILL_GETMAJIND_YPEN_Ym;
+	    int index[10] = FILL_GET_Ym;
 	    double T_out[10];
 	    getDataFromIndex(T, index, 10, T_out);
             T[ip] = derivY->calcNeumann(T_out);
@@ -288,7 +288,7 @@ void CurvilinearCSolver::preStepBCHandling(){
 	    rhoUP[ip] = 0.0;
 	    rhoVP[ip] = 0.0;
 	    if(bc->bcX0 == Options::ADIABATIC_WALL){
-	        int index[10] = FILL_GETMAJIND_YPEN_Xp;
+	        int index[10] = FILL_GET_Xp;
 	        double T_out[10];
 	        getDataFromIndex(T, index, 10, T_out);
                 T[ip] = derivX->calcNeumann(T_out);
@@ -311,7 +311,7 @@ void CurvilinearCSolver::preStepBCHandling(){
 	    rhoUP[ip] = 0.0;
 	    rhoVP[ip] = 0.0;
 	    if(bc->bcX1 == Options::ADIABATIC_WALL){
-	        int index[10] = FILL_GETMAJIND_YPEN_Xm;
+	        int index[10] = FILL_GET_Xm;
 	        double T_out[10];
 	        getDataFromIndex(T, index, 10, T_out);
                 T[ip] = derivX->calcNeumann(T_out);
@@ -329,7 +329,7 @@ void CurvilinearCSolver::preStepBCHandling(){
 
 	FOR_Y0{
 	    if(bc->bcY0 == Options::ADIABATIC_WALL){
-	        int index[10] = FILL_GETMAJIND_YPEN_Yp;
+	        int index[10] = FILL_GET_Yp;
 	        double T_out[10];
 	        getDataFromIndex(T, index, 10, T_out);
                 T[ip] = derivY->calcNeumann(T_out);
@@ -352,7 +352,7 @@ void CurvilinearCSolver::preStepBCHandling(){
 	FOR_Y1{
 
 	    if(bc->bcY1 == Options::ADIABATIC_WALL){
-	        int index[10] = FILL_GETMAJIND_YPEN_Ym;
+	        int index[10] = FILL_GET_Ym;
 	        double T_out[10];
 	        getDataFromIndex(T, index, 10, T_out);
                 T[ip] = derivY->calcNeumann(T_out);
@@ -381,7 +381,7 @@ void CurvilinearCSolver::preStepBCHandling(){
             rhoUP[ip] = 0.0;
             rhoVP[ip] = rhoP[ip]*X0WallV;
 
-	    int index[10] = FILL_GETMAJIND_YPEN_Xp;
+	    int index[10] = FILL_GET_Xp;
 	    double T_out[10];
 	    getDataFromIndex(T, index, 10, T_out);
             T[ip] = derivX->calcNeumann(T_out);
@@ -400,7 +400,7 @@ void CurvilinearCSolver::preStepBCHandling(){
             rhoUP[ip] = 0.0;
             rhoVP[ip] = rhoP[ip]*X1WallV;
 
-	    int index[10] = FILL_GETMAJIND_YPEN_Xm;
+	    int index[10] = FILL_GET_Xm;
 	    double T_out[10];
 	    getDataFromIndex(T, index, 10, T_out);
             T[ip] = derivX->calcNeumann(T_out);
@@ -416,7 +416,7 @@ void CurvilinearCSolver::preStepBCHandling(){
 
         FOR_Y0{
 
-	    int index[10] = FILL_GETMAJIND_YPEN_Yp;
+	    int index[10] = FILL_GET_Yp;
 	    double T_out[10];
 	    getDataFromIndex(T, index, 10, T_out);
             T[ip] = derivY->calcNeumann(T_out);
@@ -434,9 +434,9 @@ void CurvilinearCSolver::preStepBCHandling(){
 
     if(bc->bcY1 == Options::MOVING_ADIABATIC_WALL){
 
-        FOR_Y1_YPEN_MAJ{
+        FOR_Y1{
 
-	    int index[10] = FILL_GETMAJIND_YPEN_Ym;
+	    int index[10] = FILL_GET_Ym;
 	    double T_out[10];
 	    getDataFromIndex(T, index, 10, T_out);
             T[ip] = derivY->calcNeumann(T_out);

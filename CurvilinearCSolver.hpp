@@ -8,7 +8,7 @@
 #include "Macros.hpp"
 #include "Options.hpp"
 #include "Utils.hpp"
-//#include "SpongeBC.hpp"
+#include "SpongeBC.hpp"
 #include "AbstractCSolver.hpp"
 //#include "PngWriter.hpp"
 //#include "CurvilinearInterpolator.hpp"
@@ -30,7 +30,6 @@ class CurvilinearCSolver: public AbstractCSolver{
 	double mu_ref;
 
 	//Make local copies for macros...
-	int Nx, Ny, N;
 
 	double t1, t2;
 
@@ -212,8 +211,8 @@ class CurvilinearCSolver: public AbstractCSolver{
 	}
 
 	//Pre solver utility functions
-	void addImageOutput(PngWriter *pw);
-	void generateImagePlane(PngWriter *pw);
+	//void addImageOutput(PngWriter *pw);
+	//void generateImagePlane(PngWriter *pw);
 
 	//Pre Step Functions...
 	void calcDtFromCFL();
@@ -236,7 +235,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 	//Post Step Functions
 	void updateSponge();
 	void writeImages();
-	void writePlaneImageForVariable(PngWriter *pw);
+	//void writePlaneImageForVariable(PngWriter *pw);
 	void checkSolution();
 	void dumpSolution();
 	void checkEnd();
@@ -276,7 +275,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 
    	    if(timeStep == opt->timeStep){
 //        	dumpSolution();
-        	writeImages();
+        	//writeImages();
     	    }
     	    calcDtFromCFL();
 
@@ -323,16 +322,16 @@ class CurvilinearCSolver: public AbstractCSolver{
     	    //updateSponge();
     	    checkSolution();
 
-	    if(timeStep%opt->stats_interval == 0 && statsFlag){
-		stats->updateStatsFields();
-	    } 
+	    //if(timeStep%opt->stats_interval == 0 && statsFlag){
+		//stats->updateStatsFields();
+	    //} 
 
 
-    	    if(timeStep%ts->dumpStep == 0){
-        	dumpSolution();
-	    }
+    	    //if(timeStep%ts->dumpStep == 0){
+       // 	dumpSolution();
+//	    }
 
-       	    writeImages();
+       	    //writeImages();
 
     	    checkEnd();
 

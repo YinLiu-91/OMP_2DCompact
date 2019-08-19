@@ -8,6 +8,7 @@ class AbstractRK{
     public:
 	
 	AbstractCSolver *cs;
+	int Nx, Ny, N;
 
 	//Each RK Class needs to have these functions to overwrite the pure virtual ones
 	virtual void executeSolverLoop() = 0;

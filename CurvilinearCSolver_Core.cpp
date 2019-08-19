@@ -126,7 +126,7 @@ void CurvilinearCSolver::calcDtFromCFL(){
     UChar_dx = new double[N];
 
     FOR_XY{
-	UChar_dx[ip] = J11[ip]*(fabs(U[ip]) + sos[ip])/dom->dx + J22[ip]*(fabs(V[ip])+sos[ip])/dom->dy + J33[ip]*(fabs(W[ip]) + sos[ip])/dom->dz;
+	UChar_dx[ip] = J11[ip]*(fabs(U[ip]) + sos[ip])/dom->dx + J22[ip]*(fabs(V[ip])+sos[ip])/dom->dy;
     }
 
     //Get the largest value in the domain
@@ -740,7 +740,7 @@ void CurvilinearCSolver::solveContinuity(){
 	else
 	    spgSource = 0.0;
 		
-	rhok2[ip]  = ts->dt*J[ip]*(-cont_1[ip] - cont_2[ip] - cont_3[ip] + (spgSource+contRHSSource(ip))/J[ip]);
+	rhok2[ip]  = ts->dt*J[ip]*(-cont_1[ip] - cont_2[ip] + (spgSource+contRHSSource(ip))/J[ip]);
     }
 /*
     if(useTiming){
@@ -796,7 +796,7 @@ void CurvilinearCSolver::solveYMomentum(){
 
     double spgSource;
 
-    FOR_XYZ_YPEN{ 
+    FOR_XY{ 
 
         if(spongeFlag)
             spgSource = calcSpongeSource(rhoVP[ip], spg->spongeRhoVAvg[ip], spg->sigma[ip]);
@@ -829,7 +829,7 @@ void CurvilinearCSolver::solveEnergy(){
     }
 
     double spgSource;
-    FOR_XYZ_YPEN{
+    FOR_XY{
 
         if(spongeFlag)
             spgSource = calcSpongeSource(rhoEP[ip], spg->spongeRhoEAvg[ip], spg->sigma[ip]);
@@ -1143,7 +1143,7 @@ void CurvilinearCSolver::checkSolution(){
 
     if(timeStep%ts->checkStep == 0){
 
-	t2 = MPI_Wtime();
+	//t2 = MPI_Wtime();
 
 	    cout << endl;
             cout << "-------------------------------------------------" << endl;
@@ -1327,11 +1327,11 @@ void CurvilinearCSolver::dumpSolution(){
 
 }
 
-void CurvilinearCSolver::addImageOutput(PngWriter *png){
+//void CurvilinearCSolver::addImageOutput(PngWriter *png){
 //    imageList.push_back(png);
-}
+//}
 
-void CurvilinearCSolver::writeImages(){
+//void CurvilinearCSolver::writeImages(){
 /*
 //    if(useTiming) ft1 = MPI_Wtime();
 
@@ -1382,9 +1382,9 @@ void CurvilinearCSolver::writeImages(){
 */
 
 
-}
+//}
 
-void CurvilinearCSolver::generateImagePlane(PngWriter *pw){
+//void CurvilinearCSolver::generateImagePlane(PngWriter *pw){
 /*
     int N1 = pw->nx, N2 = pw->ny; 
     int plane    = pw->planeInd;
@@ -1546,9 +1546,9 @@ void CurvilinearCSolver::generateImagePlane(PngWriter *pw){
 
     delete[] pointList;
 */
-}
+//}
 
-void CurvilinearCSolver::writePlaneImageForVariable(PngWriter *pw){
+//void CurvilinearCSolver::writePlaneImageForVariable(PngWriter *pw){
 /*
     int N1 = pw->nx;
     int N2 = pw->ny;
@@ -1649,7 +1649,7 @@ void CurvilinearCSolver::writePlaneImageForVariable(PngWriter *pw){
 
     delete[] ff;
 */
-}
+//}
 
 bool CurvilinearCSolver::checkForAndDeleteKillFile(string killFileName){
 
@@ -1667,8 +1667,6 @@ bool CurvilinearCSolver::checkForAndDeleteKillFile(string killFileName){
 	        cout << " > ERROR DELETING KILLFILE! " << endl;
 	    }
         }
-
-    }
 
     return fileExists;
 }

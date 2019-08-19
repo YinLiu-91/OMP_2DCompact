@@ -19,7 +19,7 @@ using namespace std::chrono;
 #include "BC.hpp" 
 
 #include "AbstractCSolver.hpp"
-//#include "CurvilinearCSolver.hpp"
+#include "CurvilinearCSolver.hpp"
 
 #include "AbstractSingleBlockMesh.hpp"
 #include "AlgebraicSingleBlockMesh.hpp"
@@ -135,11 +135,11 @@ int main(int argc, char *argv[]){
     //Initialize the Solver//
     /////////////////////////
     AbstractCSolver *cs;
-//  cs= new CurvilinearCSolver(c2d, d, bc, ts, opt);
+    cs = new CurvilinearCSolver(d, bc, ts, opt);
 
     //Attach the mesh object to the solver...
 
-//    cs->msh = new AlgebraicSingleBlockMesh(cs, d, mpiRank);
+    cs->msh = new AlgebraicSingleBlockMesh(cs, d);
 
 
 
@@ -266,7 +266,6 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-/*
 void CurvilinearCSolver::initialHook(){};
 void CurvilinearCSolver::fullStepTemporalHook(){};
 void CurvilinearCSolver::subStepTemporalHook(){};
@@ -275,10 +274,7 @@ void CurvilinearCSolver::postStepBoundaryHook(){};
 double CurvilinearCSolver::contRHSSource(int ip){return 0.0;};
 double CurvilinearCSolver::xmomRHSSource(int ip){return 0.0;};
 double CurvilinearCSolver::ymomRHSSource(int ip){return 0.0;};
-double CurvilinearCSolver::zmomRHSSource(int ip){return 0.0;};
 double CurvilinearCSolver::engyRHSSource(int ip){return 0.0;};
-*/
-
 
 
 

@@ -17,8 +17,6 @@ SpongeBC::SpongeBC(AbstractSingleBlockMesh *msh, Domain *domain, IdealGas *ideal
 	    this->Ny = domain->Ny;
 	    N = Nx*Ny;
 
-	    this->mpiRank = mpiRank;
-
 	    sigma = new double[N];
 	    spongeRhoAvg  = new double[N];
 	    spongeRhoUAvg = new double[N];
@@ -134,29 +132,24 @@ void SpongeBC::initCylSpongeBC(){
 
 
 
-        double spongeXMin = msh->x_min[0];
-        double spongeXMax = msh->x_max[0];
-	double spongeYMin = msh->x_min[1];
-	double spongeYMax = msh->x_max[1];
-
-	double spongeCylAxis[3];
-	spongeCylAxis[2] = opt->spongeCylAxisZ;
+        double spongeXMin = msh->x_min;
+        double spongeXMax = msh->x_max;
+	double spongeYMin = msh->y_min;
+	double spongeYMax = msh->y_max;
 
 
 	double spongeRmin = opt->rMin;
 
 	double spongeRmax;
 
-	if(opt->spongeCylAxisOrient == 2){
-
 	     //This maybe isn't the most general formulation, just takes the most distant boundary point  
 	     //from the cylindrical axis as the the maximum sponge radius
-	     double spongeRXmax1 = fabs(spongeXMin - spongeCylAxis[0]);
-	     double spongeRXmax2 = fabs(spongeXMax - spongeCylAxis[0]);
+	     double spongeRXmax1 = fabs(spongeXMin - opt->spongeCylAxisX);
+	     double spongeRXmax2 = fabs(spongeXMax - opt->spongeCylAxisX);
 	     double spongeRXmax  = fmax(spongeRXmax1, spongeRXmax2);
 
-	     double spongeRYmax1 = fabs(spongeYMin - spongeCylAxis[1]);
-	     double spongeRYmax2 = fabs(spongeYMax - spongeCylAxis[1]);
+	     double spongeRYmax1 = fabs(spongeYMin - opt->spongeCylAxisY);
+	     double spongeRYmax2 = fabs(spongeYMax - opt->spongeCylAxisY);
 	     double spongeRYmax  = fmax(spongeRYmax1, spongeRYmax2);
 
 	     spongeRmax = fmax(spongeRXmax, spongeRYmax);
@@ -166,7 +159,7 @@ void SpongeBC::initCylSpongeBC(){
 		 FOR_X{
 		     FOR_Y{
 			     int ip = GET2DINDEX_XY;
-			     double r = sqrt(pow(msh->x[ip]-spongeCylAxis[0],2.0) + pow(msh->y[ip]-spongeCylAxis[1],2.0));
+			     double r = sqrt(pow(msh->x[ip]-opt->spongeCylAxisX,2.0) + pow(msh->y[ip]-opt->spongeCylAxisY,2.0));
 			     if(r > spongeRmin){
 				 double spongeR = (r-spongeRmin)/(spongeRmax-spongeRmin);
 				 sigma[ip] = fmax(spongeStrength*(0.068*pow(spongeR,2.0) + 0.845*pow(spongeR, 8.0)), sigma[ip]);
@@ -174,14 +167,6 @@ void SpongeBC::initCylSpongeBC(){
 		     }
 	 	 }
 	     }
-
-
-	
-	}else{
-	
-	    cout << "SPONGECYLINDRICAL SHAPE NEEDS TO BE IMPLEMENTED FOR ORIENT = " << opt->spongeCylAxisOrient << endl;
-	    abort();
-	}
 
 	    //Default the maximum ends of the sponge to the domain max, can and may be changed for curvilinear domains
 

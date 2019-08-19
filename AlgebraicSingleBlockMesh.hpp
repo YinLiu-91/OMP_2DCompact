@@ -15,6 +15,7 @@ class AlgebraicSingleBlockMesh:public AbstractSingleBlockMesh{
 	    this->d = dom;
 	    this->derivX = cs->derivX;
 	    this->derivY = cs->derivY;
+	    this->opt = cs->opt;
 
 	    max_xi  = d->Lx;
 	    max_eta = d->Ly;

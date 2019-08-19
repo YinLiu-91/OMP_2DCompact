@@ -78,6 +78,8 @@ class Options{
 	RKType rkType;
 	string rkType_str;	
 
+	int blocksize;
+
 	//RESTART stuff
 	bool fromRestart;
 	bool onlyGridFromRestart;
@@ -159,6 +161,7 @@ class Options{
 	    ("SOLVER.YFDTYPE",		 po::value<string>(&yFDType_str), "Finite Differences Type in the Y-Direction")
 	    ("SOLVER.FILTERTYPE",	 po::value<string>(&filterType_str), "Filter type for all three directions")
 	    ("SOLVER.RKTYPE",		 po::value<string>(&rkType_str), "Type of Runge-Kutta time stepping")
+	    ("SOLVER.BLOCKSIZE",	 po::value<int>(&blocksize), "Blocksize for fast matrix transposing")
 	    ("RESTART.FROMRESTART", 	 po::value<bool>(&fromRestart), "Do we start the simulation from a restart")
 	    ("RESTART.ONLYGRIDFROMRESTART", 	 po::value<bool>(&onlyGridFromRestart), "Only pull the grid from the restart file")
 	    ("RESTART.FILENAME",	 po::value<string>(&filename), "Filename of the restart file")
@@ -217,6 +220,7 @@ class Options{
 	}
 
 	checkValue<double>("SOLVER.ALPHAF", "alphaF", alphaF, 0.45);
+	checkValue<int>("SOLVER.BLOCKSIZE", "blocksize", blocksize, 8);
 	forceValue<double>("SOLVER.MU_REF", "mu_ref", mu_ref);
 	checkValue<bool>("SOLVER.USETIMING", "useTiming", useTiming, false);
 	parseFDTypeFromString("SOLVER.XFDTYPE", xFDType_str, xFDType);

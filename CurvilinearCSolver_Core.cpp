@@ -95,7 +95,34 @@ void CurvilinearCSolver::initializeSolverData(){
     sos = new double[N];
 
     //84
-/*
+
+    temp1 = new double[N]; tempVec.push_back(temp1);
+    temp2 = new double[N]; tempVec.push_back(temp2);
+    temp3 = new double[N]; tempVec.push_back(temp3);
+    temp4 = new double[N]; tempVec.push_back(temp4);
+    temp5 = new double[N]; tempVec.push_back(temp5);
+    temp6 = new double[N]; tempVec.push_back(temp6);
+    temp7 = new double[N]; tempVec.push_back(temp7);
+    temp8 = new double[N]; tempVec.push_back(temp8);
+    temp9 = new double[N]; tempVec.push_back(temp9);
+    temp10= new double[N]; tempVec.push_back(temp10);
+    temp11= new double[N]; tempVec.push_back(temp11);
+    temp12= new double[N]; tempVec.push_back(temp12);
+    temp13= new double[N]; tempVec.push_back(temp13);
+    temp14= new double[N]; tempVec.push_back(temp14);
+    temp15= new double[N]; tempVec.push_back(temp15);
+    temp16= new double[N]; tempVec.push_back(temp16);
+    temp17= new double[N]; tempVec.push_back(temp17);
+    temp18= new double[N]; tempVec.push_back(temp18);
+    temp19= new double[N]; tempVec.push_back(temp19);
+    temp20= new double[N]; tempVec.push_back(temp20);
+    temp21= new double[N]; tempVec.push_back(temp21);
+    temp22= new double[N]; tempVec.push_back(temp22);
+    temp23= new double[N]; tempVec.push_back(temp23);
+    temp24= new double[N]; tempVec.push_back(temp24);
+    temp25= new double[N]; tempVec.push_back(temp25);
+    
+    /*
     c2d->allocX(tempX1);  tempVec.push_back(tempX1);
     c2d->allocX(tempX2);  tempVec.push_back(tempX2);
     c2d->allocX(tempX3);  tempVec.push_back(tempX3);
@@ -279,7 +306,7 @@ void CurvilinearCSolver::computeGradient(vector<double*> vecIn, vector<double*>v
 };
 
 void CurvilinearCSolver::computeGradDotComponents(vector<double*> vecIn, vector<double*>vecOut){
-/*
+
     if(vecIn.size()/3 > 5){
 	cout << "ERROR:computeGradDotComponents: NEED MORE TEMPORARY MEMORY, COMPUTING GRADIENT ON LIST LARGER THAN 5" << endl;
     }else{
@@ -297,103 +324,29 @@ void CurvilinearCSolver::computeGradDotComponents(vector<double*> vecIn, vector<
 
         if(compStyle == VANILLA){
 
-	    //Xi2 Derivatives First
+	    //Xi1 Derivatives First
 	    for(int ip = 0; ip < N; ip++){
-	        derivXi2->calc1stDerivField(vecIn[ip+N], vecOut[ip+N]);
+	        derivXi1->calc1stDerivField(vecIn[ip+N], vecOut[ip+N]);
        	    }
 
-	    //Xi1 Derivatives Next
+	    //Xi2 Derivatives Next
 	    for(int ip = 0; ip < N; ip++){
-	        c2d->transposeY2X_MajorIndex(vecIn[ip], tempXVec[ip]);
-	    }
-
-	    for(int ip = 0; ip < N; ip++){
-	        derivXi1->calc1stDerivField(tempXVec[ip], tempXVec[ip+N]);
+	        transposeMatrix_Fast2(vecIn[ip], Nx, Ny, tempVec[ip], opt->blocksize);
 	    }
 
 	    for(int ip = 0; ip < N; ip++){
-	        c2d->transposeX2Y_MajorIndex(tempXVec[ip+N], vecOut[ip]);
-	    }
-
-
-	    //Xi3 Derivatives Finally
-	    for(int ip = 0; ip < N; ip++){
-	        c2d->transposeY2Z_MajorIndex(vecIn[2*N+ip], tempZVec[ip]);
+	        derivXi2->calc1stDerivField(tempVec[ip], tempVec[ip+N]);
 	    }
 
 	    for(int ip = 0; ip < N; ip++){
-	        derivXi3->calc1stDerivField(tempZVec[ip], tempZVec[ip+N]);
+	        transposeMatrix_Fast2(tempVec[ip+N], Ny, Nx, vecOut[ip], opt->blocksize);
 	    }
 
-	    for(int ip = 0; ip < N; ip++){
-	        c2d->transposeZ2Y_MajorIndex(tempZVec[ip+N], vecOut[2*N+ip]);
-	    }
-	}else if(compStyle == OCC){
-
-	
-	    if(sbufVec.size() < 2*N){
-		//Need to allocate memory in send buffer arrays...
-		for(int ip = sbufVec.size(); ip < 2*N; ip++){
-		    double *tmp_ptr = new double[c2d->decompBufSize];
-		    sbufVec.push_back(tmp_ptr);
-		}
-	    }
-
-	    if(rbufVec.size() < 2*N){
-		//Need to allocate memory in recv buffer arrays...
-		for(int ip = rbufVec.size(); ip < 2*N; ip++){
-		    double *tmp_ptr = new double[c2d->decompBufSize];
-		    rbufVec.push_back(tmp_ptr);
-		}
-	    }
-	
-	    //Going to need some handles for each of the communications
-	    vector<MPI_Request> y2xHandles(vecInSize);
-	    vector<MPI_Request> y2zHandles(vecInSize);
-
-	    //Do our sends to x and z first
-	    for(int ip = 0; ip < N; ip++){
-		c2d->transposeY2X_MajorIndex_Start(y2xHandles[ip], vecIn[ip], tempXVec[ip], sbufVec[ip], rbufVec[ip]);
-	    }
-
-	    for(int ip = 0; ip < N; ip++){
-		c2d->transposeY2Z_MajorIndex_Start(y2zHandles[ip], vecIn[2*N+ip], tempZVec[ip], sbufVec[ip+N], rbufVec[ip+N]);
-	    }	
-
-	   //Do our Xi2 Derivative Calculations
-	   for(int ip = 0; ip < N; ip++){
-	       derivXi2->calc1stDerivField(vecIn[ip+N], vecOut[ip+N]);
-	   }
-
-	   //Now we'll collect our transpose to x and do the calcs and send it back out
-	    for(int ip = 0; ip < N; ip++){
-		c2d->transposeY2X_MajorIndex_Wait(y2xHandles[ip], vecIn[ip], tempXVec[ip], sbufVec[ip], rbufVec[ip]);
-		derivXi1->calc1stDerivField(tempXVec[ip], tempXVec[ip+N]);
-		c2d->transposeX2Y_MajorIndex_Start(y2xHandles[ip], tempXVec[ip+N], vecOut[ip], sbufVec[ip], rbufVec[ip]);
-	    }
-	
-	    //Do the same with out transposes to the Z
-	    for(int ip = 0; ip < N; ip++){
-		c2d->transposeY2Z_MajorIndex_Wait(y2zHandles[ip], vecIn[2*N+ip], tempZVec[ip], sbufVec[ip+N], rbufVec[ip+N]);
-	        derivXi3->calc1stDerivField(tempZVec[ip], tempZVec[ip+N]);
-		c2d->transposeZ2Y_MajorIndex_Start(y2zHandles[ip], tempZVec[ip+N], vecOut[2*N+ip], sbufVec[ip+N], rbufVec[ip+N]);
-
-	    }
-
-	    //Collect the final x->y transposes...
-	    for(int ip = 0; ip < N; ip++){
-		c2d->transposeX2Y_MajorIndex_Wait(y2xHandles[ip], tempXVec[ip+N], vecOut[ip], sbufVec[ip], rbufVec[ip]);
-	    }
-
-	    //Collect the final z->y transposes...
-	    for(int ip = 0; ip < N; ip++){
-		c2d->transposeZ2Y_MajorIndex_Wait(y2zHandles[ip], tempZVec[ip+N], vecOut[2*N+ip], sbufVec[ip+N], rbufVec[ip+N]);
-	    }
 
 	}
 
     }
-*/
+
 };
 
 void CurvilinearCSolver::preStepDerivatives(){

@@ -30,8 +30,8 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 	dxde2_t = new double[Nx*Ny];
 	dyde2_t = new double[Nx*Ny];
 
-	transposeMatrix_Fast2(x, Nx, Ny, x_t, 16);
-	transposeMatrix_Fast2(y, Nx, Ny, y_t, 16);
+	transposeMatrix_Fast2(x, Nx, Ny, x_t, opt->blocksize);
+	transposeMatrix_Fast2(y, Nx, Ny, y_t, opt->blocksize);
 
 
 	//Do the y derivatives first
@@ -111,8 +111,8 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 	    derivY->calc1stDerivField(y_t, dyde2_t);
 	}
 
-	transposeMatrix_Fast2(dxde2_t, Ny, Nx, dxde2, 16);
-	transposeMatrix_Fast2(dyde2_t, Ny, Nx, dyde2, 16);
+	transposeMatrix_Fast2(dxde2_t, Ny, Nx, dxde2, opt->blocksize);
+	transposeMatrix_Fast2(dyde2_t, Ny, Nx, dyde2, opt->blocksize);
 
 
 	if(periodicBCX){

@@ -19,6 +19,7 @@ class AbstractSingleBlockMesh{
 
 	AbstractCSolver *cs;
 	Domain *d;
+	Options *opt;
 
 	int mpiRank;
 	double *x, *y, *z;

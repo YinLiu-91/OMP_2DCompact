@@ -67,8 +67,8 @@ class CurvilinearCSolver: public AbstractCSolver{
 	vector<double*> tempVec;
 
 	//Stuff for different styles of interprocessor computation...
-	//enum CompStyle {VANILLA, OCC, VANILLA_CHUNKED, OCC_CHUNKED};
-        //CompStyle compStyle;
+	enum CompStyle {VANILLA};
+        CompStyle compStyle;
 
 	bool spongeFlag;
 	SpongeBC *spg; 
@@ -123,7 +123,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 	    rkLast = false;
 
 	    //Computational style, should be in inputs
-	    //compStyle = OCC;
+	    compStyle = VANILLA;
 	
 	    //Allocate our arrays for the solver data
 	    initializeSolverData();		    	    

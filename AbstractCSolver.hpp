@@ -52,14 +52,11 @@ class AbstractCSolver{
 
 
 	//Temporary data storage...
-	double *tempX1,  *tempX2,  *tempX3,  *tempX4, *tempX5;
-	double *tempX6,  *tempX7,  *tempX8,  *tempX9, *tempX10;
-
-	double *tempY1,  *tempY2,  *tempY3,  *tempY4,  *tempY5;
-	double *tempY6,  *tempY7,  *tempY8,  *tempY9,  *tempY10;
-	double *tempY11, *tempY12, *tempY13, *tempY14, *tempY15;
-	double *tempY16, *tempY17, *tempY18, *tempY19, *tempY20;
-	double *tempY21, *tempY22, *tempY23, *tempY24;
+	double *temp1, *temp2, *temp3, *temp4, *temp5;
+	double *temp6, *temp7, *temp8, *temp9, *temp10;
+	double *temp11, *temp12, *temp13, *temp14, *temp15;
+	double *temp16, *temp17, *temp18, *temp19, *temp20;
+	double *temp21, *temp22, *temp23, *temp24, *temp25;
 
 	//Common Msh Stuff if needed
 	AbstractSingleBlockMesh *msh;

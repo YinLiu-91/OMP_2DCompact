@@ -69,35 +69,29 @@ int main(int argc, char *argv[]){
     bool periodicBC[2];
     BC *bc = new BC(opt, periodicBC);
 
-/*
-    MPI_Offset disp;
-    int TS, Nx, Ny, Nz;
+
+    int TS, Nx, Ny;
     double time;
     if(opt->fromRestart || opt->onlyGridFromRestart){
 
 	//If we need to read from a file, pull the dimensions from
 	//the leading three doubles from the file...
 
-	double cN[5];
-	IF_RANK0{
-	    FILE *ptr;
-	    ptr = fopen(opt->filename.c_str(), "rb");
-	    if(ptr == NULL){
-		cout << "ERROR: Couldn't open file " << opt->filename << endl;
-		MPI_Abort(MPI_COMM_WORLD, -10);
-	    }else{
-	        fread(cN, sizeof(double), 5, ptr);
-	    }
-	    fclose(ptr);
+	double cN[4];
+	FILE *ptr;
+	ptr = fopen(opt->filename.c_str(), "rb");
+	if(ptr == NULL){
+	    cout << "ERROR: Couldn't open file " << opt->filename << endl;
+	    abort();
+	}else{
+	    fread(cN, sizeof(double), 4, ptr);
 	}
-
-	MPI_Bcast(cN, 5, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	fclose(ptr);
 
 	TS = (int)cN[0];
 	time = cN[1];
 	Nx = (int)cN[2];
 	Ny = (int)cN[3];
-	Nz = (int)cN[4];
 
 	if(opt->fromRestart){
 	    opt->timeStep = TS;
@@ -108,7 +102,6 @@ int main(int argc, char *argv[]){
 	}
 	opt->Nx = Nx;
 	opt->Ny = Ny;
-	opt->Nz = Nz;
 
     }else{
 	TS = 0;
@@ -117,10 +110,7 @@ int main(int argc, char *argv[]){
 	opt->time = time;
 	Nx = opt->Nx;
 	Ny = opt->Ny;
-	Nz = opt->Nz;
-	disp = 0;
     }
-*/
 
     /////////////////////////
     //Initialize the Domain//
@@ -129,8 +119,6 @@ int main(int argc, char *argv[]){
     double Lx = 1.0, Ly = 1.0;
     Domain *d = new Domain(opt, Lx, Ly);
 
-    int Nx = d->Nx, Ny = d->Ny;
- 
     /////////////////////////
     //Initialize the Solver//
     /////////////////////////
@@ -138,52 +126,47 @@ int main(int argc, char *argv[]){
     cs = new CurvilinearCSolver(d, bc, ts, opt);
 
     //Attach the mesh object to the solver...
-
     cs->msh = new AlgebraicSingleBlockMesh(cs, d);
-
-
 
     ///////////////////////////////////////////
     //Initialize Execution Loop and RK Method//
     ///////////////////////////////////////////
     AbstractRK *rk;
-/*
+
     if(opt->rkType == Options::TVDRK3){
         rk = new TVDRK3(cs);
     }else if(opt->rkType == Options::RK4){
-	rk = new RK4(cs);
+//	rk = new RK4(cs);
     }else if(opt->rkType == Options::KENRK4){
-        rk = new KenRK4(cs);
+//        rk = new KenRK4(cs);
     }else if(opt->rkType == Options::LSLDDRK4){
-        rk = new LSLDDRK4(cs);
+//        rk = new LSLDDRK4(cs);
     }else{
 	cout << "SHOULD NEVER GET HERE!" << endl;
     }
-*/
+
     ///////////////////////////////
     //Set flow initial conditions//
     ///////////////////////////////
-/*
+
     bool fromRestart = opt->fromRestart;
     if(!fromRestart){
-        FOR_Z_YPEN{
-            FOR_Y_YPEN{
-                FOR_X_YPEN{
+        FOR_Y{
+            FOR_X{
 
-                    int ip = GETMAJIND_YPEN;
+                int ip = GET2DINDEX_XY;
 
-                    cs->rho0[ip] = 1.0;
-                    cs->p0[ip]   = 11.11111111/cs->ig->gamma;
-                    cs->U0[ip]   = u_temp[ip];
-                    cs->V0[ip]   = v_temp[ip];
-                    cs->W0[ip]   = w_temp[ip];
-                }
+                cs->rho0[ip] = 1.0;
+                cs->p0[ip]   = 1.0/cs->ig->gamma;
+                cs->U0[ip]   = 0.1;
+                cs->V0[ip]   = 0.0;
             }
         }
     }else{
 
 	string filename = opt->filename;
 
+	/* Need to set up just a serial read of the data...
 	MPI_File fh;
 	MPI_Offset disp, filesize;
 
@@ -238,11 +221,10 @@ int main(int argc, char *argv[]){
 	cs->c2d->deallocXYZ(rhoV_in);
 	cs->c2d->deallocXYZ(rhoW_in);
 	cs->c2d->deallocXYZ(rhoE_in);
-
-    }
 */
+    }
 
-//    cs->setInitialConditions();
+    cs->setInitialConditions();
 
 
 

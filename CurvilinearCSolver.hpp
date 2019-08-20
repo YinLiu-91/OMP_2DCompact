@@ -288,6 +288,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 
     	    preStepDerivatives();
 
+	    //reportAll();
 	}
 
 	void solveEqnSet(){
@@ -316,6 +317,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 	}
 
 	void postStep(){
+
 
 	    fullStepTemporalHook();
 

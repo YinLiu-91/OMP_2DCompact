@@ -92,11 +92,14 @@ void TVDRK3::updateConservedData(){
 
 void TVDRK3::executeSolverLoop(){
 
+    cout << "HERE" << endl;
+
     while(cs->endFlag == false){
 
 	cs->rkLast = false;
 	
 	cs->preStep();
+
 
 	//Step 1
 	cs->rkStep = 1;

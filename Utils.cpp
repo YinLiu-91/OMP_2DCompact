@@ -266,12 +266,12 @@ double fRand(double fMin, double fMax)
 void getRange(double *phi, string Var, int Nx, int Ny){
 
     double dataMin = 1000000.0;
-    double dataMax = -1000000.0;
+    double dataMax = -2000000.0;
 
     #pragma omp parallel for reduction(max:dataMax) reduction( min:dataMin)
     for(int ip = 0; ip < Nx*Ny; ip++){
-	dataMin = min(phi[ip], dataMin);
-	dataMax = max(phi[ip], dataMax);
+	dataMin = fmin(phi[ip], dataMin);
+	dataMax = fmax(phi[ip], dataMax);
     }
 
 

@@ -156,8 +156,14 @@ int main(int argc, char *argv[]){
 
                 int ip = GET2DINDEX_XY;
 
+		double r2, pt;
+		
+		r2 = (cs->msh->x[i] - M_PI)*(cs->msh->x[i] - M_PI) + (cs->msh->y[j] - M_PI)*(cs->msh->y[j] - M_PI); 
+
+		pt = 1.0*exp(-r2/0.000001);
+
                 cs->rho0[ip] = 1.0;
-                cs->p0[ip]   = 1.0/cs->ig->gamma;
+                cs->p0[ip]   = (pt +1.0)/cs->ig->gamma;
                 cs->U0[ip]   = 0.1;
                 cs->V0[ip]   = 0.0;
             }
@@ -243,7 +249,7 @@ int main(int argc, char *argv[]){
     ////////////////////////////////////////
     //Execute the solver timestepping loop//
     ////////////////////////////////////////
-    //rk->executeSolverLoop();  
+    rk->executeSolverLoop();  
 
     return 0;
 }

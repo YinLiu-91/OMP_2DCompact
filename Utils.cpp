@@ -291,6 +291,45 @@ void getRangeValue(double *phi, int Nx, int Ny, double &dataMin, double &dataMax
 
 }
 
+
+bool isPointInTriangle(double p[2], double a[2], double b[2], double c[2]){
+
+    //a is the base point, b and c are the end vertices
+    double v0[2], v1[2], v2[2];
+    v0[0] = c[0]-a[0];
+    v0[1] = c[1]-a[1];
+    v1[0] = b[0]-a[0];
+    v1[1] = b[1]-a[1];
+    v2[0] = p[0]-a[0];
+    v2[1] = p[1]-a[1];
+
+    double dot00 = v0[0]*v0[0] + v0[1]*v0[1];
+    double dot01 = v0[0]*v1[0] + v0[1]*v1[1];
+    double dot02 = v0[0]*v2[0] + v0[1]*v2[1];
+    double dot11 = v1[0]*v1[0] + v1[1]*v1[1];
+    double dot12 = v1[0]*v2[0] + v1[1]*v2[1];
+
+    double invDenom = 1/(dot00*dot11-dot01*dot01);
+    double u = (dot11*dot02-dot01*dot12)*invDenom;
+    double v = (dot00*dot12-dot01*dot02)*invDenom;
+
+    return (u >= 0) && (v >= 0) && (u + v <1);
+}	
+
+bool isPointInSquare(double p[2], double a[2], double b[2], double c[2], double d[2]){
+
+    //Thinking that the square is made of of two triangles (<ABD, <ADC)
+    // c+-----+d
+    //  |p+  /|
+    //  |   / |
+    //  |  /  |
+    //  | /   |
+    //  |/    |
+    // a+-----+b
+    return (isPointInTriangle(p, a, b, d) || isPointInTriangle(p, a, d, c)); 
+
+}
+
 bool isPointInHexa(double p[3], double vertex[8][3]){
 
 

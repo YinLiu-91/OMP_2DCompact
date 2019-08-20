@@ -46,7 +46,7 @@ class AlgebraicSingleBlockMesh:public AbstractSingleBlockMesh{
 	    solveForJacobians();
 
 	    //Initialize the ADT...
-	    //initMeshADT();
+	    initMeshADT();
 
 	}
 
@@ -138,7 +138,7 @@ void AlgebraicSingleBlockMesh::getMesh(){
 			    //generateNozzleGrid(xi_in, x_out);
 
 			    x[ip] = 2.0*M_PI*xi_in[0];
-			    y[ip] = 2.0*M_PI*xi_in[1] + x[ip];
+			    y[ip] = 2.0*M_PI*xi_in[1];
 
 //			    x[ip] = xi_in[0];
 //			    y[ip] = xi_in[1];

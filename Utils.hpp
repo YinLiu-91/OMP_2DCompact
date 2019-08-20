@@ -35,6 +35,8 @@ double fRand(double fMin, double fMax);
 void getRange(double *phi, string Var, int Nx, int Ny);
 void getRangeValue(double *phi, int Nx, int Ny, double &dataMin, double &dataMax);
 
+bool isPointInTriangle(double p[2], double a[2], double b[2], double c[2]);
+bool isPointInSquare(double p[2], double a[2], double b[2], double c[2], double d[2]);
 bool isPointInHexa(double p[3], double vertex[8][3]);
 double getHexaVolume(double vertex[8][3]);
 double getHexaVolumeWithPoint(double vertex[8][3], double P[3]);

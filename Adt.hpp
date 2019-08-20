@@ -20,10 +20,10 @@ using namespace std ;
 template <class T>
 class AdtIndexCompare : public std::binary_function<T, T, bool> {
  private:
-  const T (*bb)[3];
+  const T (*bb)[2];
   int id;                
  public: 
-  AdtIndexCompare(const T (*bb)[3],int id) {
+  AdtIndexCompare(const T (*bb)[2],int id) {
     this->bb = bb;
     this->id = id;
   } 
@@ -39,8 +39,8 @@ class Adt {
  private:
 
   typedef struct {
-    T bbmin[3];
-    T bbmax[3];
+    T bbmin[2];
+    T bbmax[2];
     int i_f,i_l;
   } Leafdata;
 
@@ -51,7 +51,7 @@ class Adt {
 
  public:
 
-  Adt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
+  Adt(int n,const T (*bbmin)[2],const T (*bbmax)[2]) {
 
     if (n < 0) {
       std::cerr << "Error: cannot initialize Adt with n < 0: " << n << std::endl;
@@ -67,17 +67,17 @@ class Adt {
     if (leafdata != NULL) free(leafdata);
   }
 
-  void initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]);
-  void buildListForBBox(int &n_bbox_list,int * bbox_list,const T bbmin[3],const T bbmax[3]);
-  void buildListForBBox(std::vector<int>& bboxVec,const T bbmin[3],const T bbmax[3]);
-  void buildListForSphere(std::vector<int>& bboxVec,const T xs[3],const T rs);
-  void buildListForPoint(int &n_bbox_list,int * bbox_list,const T point[3]);
-  void buildListForPoint(std::vector<int>& bboxVec,const T point[3]);
-  void buildListForClosestPoint(std::vector<int>& bboxVec,const T point[3]);
+  void initAdt(int n,const T (*bbmin)[2],const T (*bbmax)[2]);
+  void buildListForBBox(int &n_bbox_list,int * bbox_list,const T bbmin[2],const T bbmax[2]);
+  void buildListForBBox(std::vector<int>& bboxVec,const T bbmin[2],const T bbmax[2]);
+  void buildListForSphere(std::vector<int>& bboxVec,const T xs[2],const T rs);
+  void buildListForPoint(int &n_bbox_list,int * bbox_list,const T point[2]);
+  void buildListForPoint(std::vector<int>& bboxVec,const T point[2]);
+  void buildListForClosestPoint(std::vector<int>& bboxVec,const T point[2]);
   
   inline T calcMaxD2PointToBbox(const T point[],const T bbmin[],const T bbmax[]) {
     double d2 = 0.0;
-    FOR_I3 {
+    FOR_I2 {
       const double dx = max(fabs(bbmin[i]-point[i]),fabs(bbmax[i]-point[i]));
       d2 += dx*dx;
     }
@@ -86,7 +86,7 @@ class Adt {
 
   inline T calcMinD2PointToBbox(const T point[],const T bbmin[],const T bbmax[]) {
     double d2 = 0.0;
-    FOR_I3 {
+    FOR_I2 {
       if (point[i] < bbmin[i]) {
 	d2 += (bbmin[i] - point[i])*(bbmin[i] - point[i]);
       }
@@ -108,7 +108,7 @@ class Adt {
 };
 
 template <class T>
-void Adt<T>::initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
+void Adt<T>::initAdt(int n,const T (*bbmin)[2],const T (*bbmax)[2]) {
 
   this->n = n;
   stack = NULL;
@@ -153,22 +153,19 @@ void Adt<T>::initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
   leafdata[ileaf].i_l = n-1;
         
   int j;
-  for (j = 0; j < 3; j++) {
+  for (j = 0; j < 2; j++) {
     leafdata[ileaf].bbmin[j] = bbmin[0][j];
     leafdata[ileaf].bbmax[j] = bbmax[0][j];
   }
   for (i = 1; i < n; i++) {
-    for (j = 0; j < 3; j++) {
+    for (j = 0; j < 2; j++) {
       leafdata[ileaf].bbmin[j] = min(leafdata[ileaf].bbmin[j],bbmin[i][j]);
       leafdata[ileaf].bbmax[j] = max(leafdata[ileaf].bbmax[j],bbmax[i][j]);
     }
   }
 
-  /*
     std::cout << "Adt bbox = " << leafdata[ileaf].bbmin[0] << " < i < " << leafdata[ileaf].bbmax[0] << " , " <<
-    leafdata[ileaf].bbmin[1] << " < j < " << leafdata[ileaf].bbmax[1] << " , " <<
-    leafdata[ileaf].bbmin[2] << " < k < " << leafdata[ileaf].bbmax[2] << std::endl;
-  */
+    leafdata[ileaf].bbmin[1] << " < j < " << leafdata[ileaf].bbmax[1]  << endl;
 
   if (n > 1) {
 
@@ -190,9 +187,9 @@ void Adt<T>::initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
       // figure out which direction we should split in -
       // the direction with the largest range...
       int id = 0;
-      const T (*bb)[3] = bbmin;
+      const T (*bb)[2] = bbmin;
       T delta_max;
-      for (j = 0; j < 3; j++) {
+      for (j = 0; j < 2; j++) {
 
         // in the case of bbmin, we store the min in the
         // leaf data, so we only need to compute the max...
@@ -280,7 +277,7 @@ void Adt<T>::initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
       leafdata[ileaf].i_f = i_f; 
       leafdata[ileaf].i_l = i_mid;
       int this_index = index[i_f];
-      for (j = 0; j < 3; j++) {
+      for (j = 0; j < 2; j++) {
         leafdata[ileaf].bbmin[j] = bbmin[this_index][j];
         leafdata[ileaf].bbmax[j] = bbmax[this_index][j];
       }
@@ -289,7 +286,7 @@ void Adt<T>::initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
         // bbox and add to stack...
         for (i = i_f+1; i <= i_mid; i++) {
           this_index = index[i];
-          for (j = 0; j < 3; j++) {
+          for (j = 0; j < 2; j++) {
             leafdata[ileaf].bbmin[j] = min(leafdata[ileaf].bbmin[j],bbmin[this_index][j]);
             leafdata[ileaf].bbmax[j] = max(leafdata[ileaf].bbmax[j],bbmax[this_index][j]);
           }
@@ -306,7 +303,7 @@ void Adt<T>::initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
       leafdata[ileaf].i_f = i_mid+1; 
       leafdata[ileaf].i_l = i_l;
       this_index = index[i_mid+1];
-      for (j = 0; j < 3; j++) {
+      for (j = 0; j < 2; j++) {
         leafdata[ileaf].bbmin[j] = bbmin[this_index][j];
         leafdata[ileaf].bbmax[j] = bbmax[this_index][j];
       }
@@ -315,7 +312,7 @@ void Adt<T>::initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
         // bbox and add to stack...
         for (i = i_mid+2; i <= i_l; i++) {
           this_index = index[i];
-          for (j = 0; j < 3; j++) {
+          for (j = 0; j < 2; j++) {
             leafdata[ileaf].bbmin[j] = min(leafdata[ileaf].bbmin[j],bbmin[this_index][j]);
             leafdata[ileaf].bbmax[j] = max(leafdata[ileaf].bbmax[j],bbmax[this_index][j]);
           }
@@ -338,7 +335,7 @@ void Adt<T>::initAdt(int n,const T (*bbmin)[3],const T (*bbmax)[3]) {
 }
 
 template <class T>
-void Adt<T>::buildListForBBox(int &n_bbox_list,int * bbox_list,const T bbmin[3],const T bbmax[3]) {
+void Adt<T>::buildListForBBox(int &n_bbox_list,int * bbox_list,const T bbmin[2],const T bbmax[2]) {
 
   n_bbox_list = 0;
 
@@ -355,8 +352,7 @@ void Adt<T>::buildListForBBox(int &n_bbox_list,int * bbox_list,const T bbmin[3],
 
       // do bbox elimination for the leaf...
       if ( (bbmin[0] > leafdata[ileaf].bbmax[0]) || (bbmax[0] < leafdata[ileaf].bbmin[0]) ||
-           (bbmin[1] > leafdata[ileaf].bbmax[1]) || (bbmax[1] < leafdata[ileaf].bbmin[1]) ||
-           (bbmin[2] > leafdata[ileaf].bbmax[2]) || (bbmax[2] < leafdata[ileaf].bbmin[2]) )
+           (bbmin[1] > leafdata[ileaf].bbmax[1]) || (bbmax[1] < leafdata[ileaf].bbmin[1]))
         continue;
 
       // this leaf's bbox overlaps. It is the terminal leaf if
@@ -383,7 +379,7 @@ void Adt<T>::buildListForBBox(int &n_bbox_list,int * bbox_list,const T bbmin[3],
 }
 
 template <class T>
-void Adt<T>::buildListForBBox(std::vector<int>& bboxVec,const T bbmin[3],const T bbmax[3]) {
+void Adt<T>::buildListForBBox(std::vector<int>& bboxVec,const T bbmin[2],const T bbmax[2]) {
 
   bboxVec.clear();
 
@@ -400,8 +396,7 @@ void Adt<T>::buildListForBBox(std::vector<int>& bboxVec,const T bbmin[3],const T
 
       // do bbox elimination for the leaf...
       if ( (bbmin[0] > leafdata[ileaf].bbmax[0]) || (bbmax[0] < leafdata[ileaf].bbmin[0]) ||
-           (bbmin[1] > leafdata[ileaf].bbmax[1]) || (bbmax[1] < leafdata[ileaf].bbmin[1]) ||
-           (bbmin[2] > leafdata[ileaf].bbmax[2]) || (bbmax[2] < leafdata[ileaf].bbmin[2]) )
+           (bbmin[1] > leafdata[ileaf].bbmax[1]) || (bbmax[1] < leafdata[ileaf].bbmin[1]))
         continue;
 
       // this leaf's bbox overlaps. It is the terminal leaf if
@@ -423,7 +418,7 @@ void Adt<T>::buildListForBBox(std::vector<int>& bboxVec,const T bbmin[3],const T
 }
 
 template <class T>
-void Adt<T>::buildListForSphere(std::vector<int>& bboxVec,const T xs[3],const T rs) {
+void Adt<T>::buildListForSphere(std::vector<int>& bboxVec,const T xs[2],const T rs) {
   
   bboxVec.clear();
   const T rs2 = rs*rs;
@@ -461,7 +456,7 @@ void Adt<T>::buildListForSphere(std::vector<int>& bboxVec,const T xs[3],const T 
 }
 
 template <class T>
-void Adt<T>::buildListForPoint(int &n_bbox_list,int * bbox_list,const T point[3]) {
+void Adt<T>::buildListForPoint(int &n_bbox_list,int * bbox_list,const T point[2]) {
 
   n_bbox_list = 0;
 
@@ -478,8 +473,7 @@ void Adt<T>::buildListForPoint(int &n_bbox_list,int * bbox_list,const T point[3]
 
       // do bbox elimination for the leaf...
       if ( (point[0] > leafdata[ileaf].bbmax[0]) || (point[0] < leafdata[ileaf].bbmin[0]) ||
-           (point[1] > leafdata[ileaf].bbmax[1]) || (point[1] < leafdata[ileaf].bbmin[1]) ||
-           (point[2] > leafdata[ileaf].bbmax[2]) || (point[2] < leafdata[ileaf].bbmin[2]) )
+           (point[1] > leafdata[ileaf].bbmax[1]) || (point[1] < leafdata[ileaf].bbmin[1]))
         continue;
 
       // this leaf's bbox overlaps. It is the terminal leaf if
@@ -506,7 +500,7 @@ void Adt<T>::buildListForPoint(int &n_bbox_list,int * bbox_list,const T point[3]
 }
 
 template <class T>
-void Adt<T>::buildListForPoint(std::vector<int>& bboxVec,const T point[3]) {
+void Adt<T>::buildListForPoint(std::vector<int>& bboxVec,const T point[2]) {
 
   bboxVec.clear();
 
@@ -523,8 +517,7 @@ void Adt<T>::buildListForPoint(std::vector<int>& bboxVec,const T point[3]) {
 
       // do bbox elimination for the leaf...
       if ( (point[0] > leafdata[ileaf].bbmax[0]) || (point[0] < leafdata[ileaf].bbmin[0]) ||
-           (point[1] > leafdata[ileaf].bbmax[1]) || (point[1] < leafdata[ileaf].bbmin[1]) ||
-           (point[2] > leafdata[ileaf].bbmax[2]) || (point[2] < leafdata[ileaf].bbmin[2]) )
+           (point[1] > leafdata[ileaf].bbmax[1]) || (point[1] < leafdata[ileaf].bbmin[1]))
         continue;
 
       // this leaf's bbox overlaps. It is the terminal leaf if
@@ -546,7 +539,7 @@ void Adt<T>::buildListForPoint(std::vector<int>& bboxVec,const T point[3]) {
 }
 
 template <class T>
-void Adt<T>::buildListForClosestPoint(std::vector<int>& bboxVec,const T point[3]) {
+void Adt<T>::buildListForClosestPoint(std::vector<int>& bboxVec,const T point[2]) {
   
   bboxVec.clear();
   

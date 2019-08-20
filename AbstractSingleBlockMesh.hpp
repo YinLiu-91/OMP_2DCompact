@@ -50,7 +50,7 @@ class AbstractSingleBlockMesh{
 	void getOrderedBlockCoordinates(int ip, int jp, double *x_halo, double *y_halo, double *z_halo, double box_p[8][3]);
 	void getOrderedBlockXiCoordinates(int ip, int jp, double box_pxi[8][3]);
 	void generateCoordinateHaloArrays(double *&x_halo, double *&y_halo);
-	int findCVForPoint(double p[3], double *x_halo, double *y_halo);
+	int findCVForPoint(double p[2]);
 	void initMeshADT();
 	void handlePeriodicStuff();
 	

@@ -214,111 +214,6 @@ void AbstractSingleBlockMesh::solveForJacobians(){
         getRange(J21, "J21", Nx, Ny);
         getRange(J22, "J22", Nx, Ny);
 	
-/*
-	 cout << " > Checking the values of the metric indentities, values should be small" << endl;
-
-	double *I1_1, *I1_2, *I1_3;
-	double *I2_1, *I2_2, *I2_3;
-	double *I3_1, *I3_2, *I3_3;
-
-	c2d->allocY(I1_1);
-	c2d->allocY(I1_2);
-	c2d->allocY(I1_3);
-	c2d->allocY(I2_1);
-	c2d->allocY(I2_2);
-	c2d->allocY(I2_3);
-	c2d->allocY(I3_1);
-	c2d->allocY(I3_2);
-	c2d->allocY(I3_3);
-
-	//In calculating these identities does there need to be a transformation at the periodic boundaries??
-
-	derivY->calc1stDerivField(J21, I1_2);
-	derivY->calc1stDerivField(J22, I2_2);
-	derivY->calc1stDerivField(J23, I3_2);
-
-
-        c2d->transposeY2X_MajorIndex(J11, tempX1);
-        c2d->transposeY2X_MajorIndex(J12, tempX2);
-        c2d->transposeY2X_MajorIndex(J13, tempX3);
-
-	derivX->calc1stDerivField(tempX1, tempX4);
-	derivX->calc1stDerivField(tempX2, tempX5);
-	derivX->calc1stDerivField(tempX3, tempX6);
-
-	c2d->transposeX2Y_MajorIndex(tempX4, I1_1);
-	c2d->transposeX2Y_MajorIndex(tempX5, I2_1);
-	c2d->transposeX2Y_MajorIndex(tempX6, I3_1);
-
-
-        c2d->transposeY2Z_MajorIndex(J31, tempZ1);
-        c2d->transposeY2Z_MajorIndex(J32, tempZ2);
-        c2d->transposeY2Z_MajorIndex(J33, tempZ3);
-
-	derivZ->calc1stDerivField(tempZ1, tempZ4);
-	derivZ->calc1stDerivField(tempZ2, tempZ5);
-	derivZ->calc1stDerivField(tempZ3, tempZ6);
-
-	c2d->transposeZ2Y_MajorIndex(tempZ4, I1_3);
-	c2d->transposeZ2Y_MajorIndex(tempZ5, I2_3);
-	c2d->transposeZ2Y_MajorIndex(tempZ6, I3_3);
-
-	FOR_XYZ_YPEN{
-	    I1_1[ip] = I1_1[ip] + I1_2[ip] + I1_3[ip];
-	    I2_1[ip] = I2_1[ip] + I2_2[ip] + I2_3[ip];
-	    I3_1[ip] = I3_1[ip] + I3_2[ip] + I3_3[ip];
-	}
-
-	getRange(I1_1, "Metric Identity 1", pySize[0], pySize[1], pySize[2], mpiRank);
-	getRange(I2_1, "Metric Identity 2", pySize[0], pySize[1], pySize[2], mpiRank);
-	getRange(I3_1, "Metric Identity 3", pySize[0], pySize[1], pySize[2], mpiRank);
-
-	c2d->deallocXYZ(I1_1);
-	c2d->deallocXYZ(I2_1);
-	c2d->deallocXYZ(I3_1);
-	c2d->deallocXYZ(I1_2);
-	c2d->deallocXYZ(I2_2);
-	c2d->deallocXYZ(I3_2);
-	c2d->deallocXYZ(I1_3);
-	c2d->deallocXYZ(I2_3);
-	c2d->deallocXYZ(I3_3);
-
-	//Free up all of the spaces we've been using...
-	c2d->deallocXYZ(tempX1);
-	c2d->deallocXYZ(tempX2);
-	c2d->deallocXYZ(tempX3);
-	c2d->deallocXYZ(tempX4);
-	c2d->deallocXYZ(tempX5);
-	c2d->deallocXYZ(tempX6);
-	c2d->deallocXYZ(tempX7);
-	c2d->deallocXYZ(tempX8);
-	c2d->deallocXYZ(tempX9);
-	c2d->deallocXYZ(tempX10);
-	c2d->deallocXYZ(tempX11);
-	c2d->deallocXYZ(tempX12);
-	c2d->deallocXYZ(tempZ1);
-	c2d->deallocXYZ(tempZ2);
-	c2d->deallocXYZ(tempZ3);
-	c2d->deallocXYZ(tempZ4);
-	c2d->deallocXYZ(tempZ5);
-	c2d->deallocXYZ(tempZ6);
-	c2d->deallocXYZ(tempZ7);
-	c2d->deallocXYZ(tempZ8);
-	c2d->deallocXYZ(tempZ9);
-	c2d->deallocXYZ(tempZ10);
-	c2d->deallocXYZ(tempZ11);
-	c2d->deallocXYZ(tempZ12);
-
-	c2d->deallocXYZ(preJdet1);
-	c2d->deallocXYZ(preJdet2);
-	c2d->deallocXYZ(preJdet3);
-
-	c2d->deallocXYZ(Jdet1);
-	c2d->deallocXYZ(Jdet2);
-	c2d->deallocXYZ(Jdet3);
-*/
-
-
     delete[] x_t;
     delete[] y_t;
     delete[] dxde1;
@@ -432,326 +327,9 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 */
 //};
 
-//void AbstractSingleBlockMesh::getOrderedBlockCoordinates(int ip, int jp, int kp, double *x_halo, double *y_halo, double *z_halo, double box_p[8][3]){
-/*
-	int iih_0_0_0;
-	int iih_0_0_1;
-	int iih_0_1_0;
-	int iih_0_1_1;
-	int iih_1_0_0;
-	int iih_1_0_1;
-	int iih_1_1_0;
-	int iih_1_1_1;
 
-	//What if we're trying to access *p+1 and we're not periodic in that direction? what happens now in x and z? What should 
-	//we return for y? just the origin coordinate?
-	//No its fine because C2Decomp will allocate the array with padding even if its not periodic and the *p+1 point should never
-	//be returned since we've zero'd the bounding box from above
+int AbstractSingleBlockMesh::findCVForPoint(double p[2]){
 
-	int maxIndex = (pySize[0]+2)*(pySize[1]+2)*(pySize[2]+2);
-
-
-        //This is the halo array index for the same point
-        iih_0_0_0 = (kp+1)*pySize[1]*(pySize[0]+2) + jp*(pySize[0]+2) + ip + 1;
-
-        //Halo array index for i, j, k+1
-        iih_0_0_1 = (kp+2)*pySize[1]*(pySize[0]+2) + (jp)*(pySize[0]+2) + ip + 1;
-
-        //Halo array index for i, j+1, k
-	if(periodicBCY && jp == (Ny-1)){
-            iih_0_1_0 = (kp+1)*pySize[1]*(pySize[0]+2) + (0)*(pySize[0]+2) + ip + 1;
-	}else{
-            iih_0_1_0 = (kp+1)*pySize[1]*(pySize[0]+2) + (jp+1)*(pySize[0]+2) + ip + 1;
-	}
-
-        //Halo array index for i, j+1, k+1
-	if(periodicBCY && jp == (Ny-1)){
-            iih_0_1_1 = (kp+2)*pySize[1]*(pySize[0]+2) + (0)*(pySize[0]+2) + ip + 1;
-	}else{
-            iih_0_1_1 = (kp+2)*pySize[1]*(pySize[0]+2) + (jp+1)*(pySize[0]+2) + ip + 1;
-	}
-
-        //Halo array index for i+1, j, k
-        iih_1_0_0 = (kp+1)*pySize[1]*(pySize[0]+2) + jp*(pySize[0]+2) + ip + 2;
-
-        //Halo array index for i+1, j, k+1
-        iih_1_0_1 = (kp+2)*pySize[1]*(pySize[0]+2) + jp*(pySize[0]+2) + ip + 2;
-
-        //Halo array index for i+1, j+1, k
-	if(periodicBCY && jp == (Ny-1)){
-            iih_1_1_0 = (kp+1)*pySize[1]*(pySize[0]+2) + (0)*(pySize[0]+2) + ip + 2;
-	}else{
-            iih_1_1_0 = (kp+1)*pySize[1]*(pySize[0]+2) + (jp+1)*(pySize[0]+2) + ip + 2;
-	}
-
-        //Halo array index for i+1, j+1, k+1
-	if(periodicBCY && jp == (Ny-1)){
-	    iih_1_1_1 = (kp+2)*pySize[1]*(pySize[0]+2) + (0)*(pySize[0]+2) + ip + 2;
-	}else{
-	    iih_1_1_1 = (kp+2)*pySize[1]*(pySize[0]+2) + (jp+1)*(pySize[0]+2) + ip + 2;
-	}
- 
-        bool xEndFlag = false;
-        if(pyStart[0] + ip == Nx-1){
-            xEndFlag = true;
-        }
-
-        bool yEndFlag = false;
-        if(jp == Ny-1){
-            yEndFlag = true;
-        }
-
-        bool zEndFlag = false;
-        if(pyStart[2] + kp == Nz-1){
-            zEndFlag = true;
-        }      
-
-	/////////////////////////////////
-	//Definite local point first...//
-	//Do 0 0 0 first/////////////////
-	//////////////////
-	box_p[0][0] = x_halo[iih_0_0_0];
-	box_p[0][1] = y_halo[iih_0_0_0];
-	box_p[0][2] = z_halo[iih_0_0_0];
-
-
-	/////////////////
-	//Next do 0 0 1// 
-	/////////////////
-
-	if(zEndFlag && periodicBCZ){
-	    box_p[1][0] = x_halo[iih_0_0_1] + periodicZTranslation[0];
-	    box_p[1][1] = y_halo[iih_0_0_1] + periodicZTranslation[1];
-	    box_p[1][2] = z_halo[iih_0_0_1] + periodicZTranslation[2];
-	}else{ //If here, we're an interior point
-	    box_p[1][0] = x_halo[iih_0_0_1];
-	    box_p[1][1] = y_halo[iih_0_0_1];
-	    box_p[1][2] = z_halo[iih_0_0_1];
-	}
-
-
-
-	/////////////////
-	//Next do 0 1 0//
-	/////////////////
-
-	if(yEndFlag && periodicBCY){
-	    box_p[2][0] = x_halo[iih_0_1_0] + periodicYTranslation[0];
-	    box_p[2][1] = y_halo[iih_0_1_0] + periodicYTranslation[1];
-	    box_p[2][2] = z_halo[iih_0_1_0] + periodicYTranslation[2];
-	}else{// If, here we're an interior point
-	    box_p[2][0] = x_halo[iih_0_1_0];
-	    box_p[2][1] = y_halo[iih_0_1_0];
-	    box_p[2][2] = z_halo[iih_0_1_0];
-	}
-
-	/////////////////
-	//Next do 0 1 1//
-	/////////////////
-
-	if(zEndFlag && periodicBCZ){
-	    if(yEndFlag && periodicBCY){
-	        box_p[3][0] = x_halo[iih_0_1_1] + periodicZTranslation[0] + periodicYTranslation[0];
-	        box_p[3][1] = y_halo[iih_0_1_1] + periodicZTranslation[1] + periodicYTranslation[1];
-	        box_p[3][2] = z_halo[iih_0_1_1] + periodicZTranslation[2] + periodicYTranslation[2];
-	    }else{
-		box_p[3][0] = x_halo[iih_0_1_1] + periodicZTranslation[0];
-		box_p[3][1] = y_halo[iih_0_1_1] + periodicZTranslation[1];
-		box_p[3][2] = z_halo[iih_0_1_1] + periodicZTranslation[2];
-	    }
-	}else{ // in interior domain in z-direction
-	    if(yEndFlag && periodicBCY){
-		box_p[3][0] = x_halo[iih_0_1_1] + periodicYTranslation[0];
-		box_p[3][1] = y_halo[iih_0_1_1] + periodicYTranslation[1];
-		box_p[3][2] = z_halo[iih_0_1_1] + periodicYTranslation[2];
-	    }else{//If we're here, we're interior 
-		box_p[3][0] = x_halo[iih_0_1_1];
-		box_p[3][1] = y_halo[iih_0_1_1];
-		box_p[3][2] = z_halo[iih_0_1_1];
-	    }
-	}
-
-
-	/////////////////
-	//Next do 1 0 0//
-	/////////////////
-
-	if(xEndFlag && periodicBCX){
-	    box_p[4][0] = x_halo[iih_1_0_0] + periodicXTranslation[0];
-	    box_p[4][1] = y_halo[iih_1_0_0] + periodicXTranslation[1];
-	    box_p[4][2] = z_halo[iih_1_0_0] + periodicXTranslation[2];
-	}else{
-	    box_p[4][0] = x_halo[iih_1_0_0];
-	    box_p[4][1] = y_halo[iih_1_0_0];
-	    box_p[4][2] = z_halo[iih_1_0_0];
-	}
-
-	/////////////////
-	//Next do 1 0 1//
-	/////////////////
-
-	if(xEndFlag && periodicBCX){
-	    if(zEndFlag && periodicBCZ){
-	        box_p[5][0] = x_halo[iih_1_0_1] + periodicXTranslation[0] + periodicZTranslation[0];
-	        box_p[5][1] = y_halo[iih_1_0_1] + periodicXTranslation[1] + periodicZTranslation[1];
-	        box_p[5][2] = z_halo[iih_1_0_1] + periodicXTranslation[2] + periodicZTranslation[2];
-	    }else{
-		box_p[5][0] = x_halo[iih_1_0_1] + periodicXTranslation[0];
-		box_p[5][1] = y_halo[iih_1_0_1] + periodicXTranslation[1];
-		box_p[5][2] = z_halo[iih_1_0_1] + periodicXTranslation[2];
-	    }
-	}else{
-	    if(zEndFlag && periodicBCZ){
-		box_p[5][0] = x_halo[iih_1_0_1] + periodicZTranslation[0];
-		box_p[5][1] = y_halo[iih_1_0_1] + periodicZTranslation[1];
-		box_p[5][2] = z_halo[iih_1_0_1] + periodicZTranslation[2];
-	    }else{
-		box_p[5][0] = x_halo[iih_1_0_1];
-		box_p[5][1] = y_halo[iih_1_0_1];
-		box_p[5][2] = z_halo[iih_1_0_1];
-	    }
-	}
-
-        /////////////////
-	//Next do 1 1 0// 
-	/////////////////   
-
-	if(xEndFlag && periodicBCX){
-	    if(yEndFlag && periodicBCY){
-		box_p[6][0] = x_halo[iih_1_1_0] + periodicXTranslation[0] + periodicYTranslation[0];
-		box_p[6][1] = y_halo[iih_1_1_0] + periodicXTranslation[1] + periodicYTranslation[1];
-		box_p[6][2] = z_halo[iih_1_1_0] + periodicXTranslation[2] + periodicYTranslation[2];
-	    }else{
-		box_p[6][0] = x_halo[iih_1_1_0] + periodicXTranslation[0];
-		box_p[6][1] = y_halo[iih_1_1_0] + periodicXTranslation[1];
-		box_p[6][2] = z_halo[iih_1_1_0] + periodicXTranslation[2];
-	    }
-	}else{
-	    if(yEndFlag && periodicBCY){
-		box_p[6][0] = x_halo[iih_1_1_0] + periodicYTranslation[0];
-		box_p[6][1] = y_halo[iih_1_1_0] + periodicYTranslation[1];
-		box_p[6][2] = z_halo[iih_1_1_0] + periodicYTranslation[2];
-	    }else{
-		box_p[6][0] = x_halo[iih_1_1_0];
-		box_p[6][1] = y_halo[iih_1_1_0];
-		box_p[6][2] = z_halo[iih_1_1_0];
-	    }
-	}
-
-
-        ////////////////////
-        //Finally do 1 1 1//
-        ////////////////////
-
-        if(xEndFlag && periodicBCX){
-	    if(yEndFlag && periodicBCY){
-	        if(zEndFlag && periodicBCZ){
-		    box_p[7][0] = x_halo[iih_1_1_1] + periodicXTranslation[0] + periodicYTranslation[0] + periodicZTranslation[0];
-		    box_p[7][1] = y_halo[iih_1_1_1] + periodicXTranslation[1] + periodicYTranslation[1] + periodicZTranslation[1];
-		    box_p[7][2] = z_halo[iih_1_1_1] + periodicXTranslation[2] + periodicYTranslation[2] + periodicZTranslation[2];
-	        }else{
-		    box_p[7][0] = x_halo[iih_1_1_1] + periodicXTranslation[0] + periodicYTranslation[0];
-		    box_p[7][1] = y_halo[iih_1_1_1] + periodicXTranslation[1] + periodicYTranslation[1];
-		    box_p[7][2] = z_halo[iih_1_1_1] + periodicXTranslation[2] + periodicYTranslation[2];
-	        }
-	    }else{
-	        if(zEndFlag && periodicBCZ){
-		    box_p[7][0] = x_halo[iih_1_1_1] + periodicXTranslation[0] + periodicZTranslation[0];
-		    box_p[7][1] = y_halo[iih_1_1_1] + periodicXTranslation[1] + periodicZTranslation[1];
-		    box_p[7][2] = z_halo[iih_1_1_1] + periodicXTranslation[2] + periodicZTranslation[2];
-	        }else{
-		    box_p[7][0] = x_halo[iih_1_1_1] + periodicXTranslation[0];
-		    box_p[7][1] = y_halo[iih_1_1_1] + periodicXTranslation[1];
-		    box_p[7][2] = z_halo[iih_1_1_1] + periodicXTranslation[2];
-	        }
-	    }
-        }else{
-	    if(yEndFlag && periodicBCY){
-	        if(zEndFlag && periodicBCZ){
-		    box_p[7][0] = x_halo[iih_1_1_1] + periodicYTranslation[0] + periodicZTranslation[0];
-		    box_p[7][1] = y_halo[iih_1_1_1] + periodicYTranslation[1] + periodicZTranslation[1];
-		    box_p[7][2] = z_halo[iih_1_1_1] + periodicYTranslation[2] + periodicZTranslation[2];
-	        }else{
-		    box_p[7][0] = x_halo[iih_1_1_1] + periodicYTranslation[0];
-		    box_p[7][1] = y_halo[iih_1_1_1] + periodicYTranslation[1];
-		    box_p[7][2] = z_halo[iih_1_1_1] + periodicYTranslation[2];
-	        }
-	    }else{
-	        if(zEndFlag && periodicBCZ){
-		    box_p[7][0] = x_halo[iih_1_1_1] + periodicZTranslation[0];
-		    box_p[7][1] = y_halo[iih_1_1_1] + periodicZTranslation[1];
-		    box_p[7][2] = z_halo[iih_1_1_1] + periodicZTranslation[2];
-	        }else{
-		    box_p[7][0] = x_halo[iih_1_1_1];
-		    box_p[7][1] = y_halo[iih_1_1_1];
-		    box_p[7][2] = z_halo[iih_1_1_1];
-	        }
-	    }
-        }
-*/
-//};
-
-//void AbstractSingleBlockMesh::generateCoordinateHaloArrays(double *&x_halo, double *&y_halo, double *&z_halo){
-/*
-	//Really should implement halo transfers for major indexed arrays
-        double *x_temp1, *y_temp1, *z_temp1;
-        c2d->allocX(x_temp1);
-        c2d->allocX(y_temp1);
-        c2d->allocX(z_temp1);
-
-        //So move to x-pencil then to non y-major y_pencil...
-        c2d->transposeY2X_MajorIndex(x, x_temp1);
-        c2d->transposeY2X_MajorIndex(y, y_temp1);
-        c2d->transposeY2X_MajorIndex(z, z_temp1);
-
-        //Then back over to y-pencil in x-major array...
-        double *x_temp2, *y_temp2, *z_temp2;
-        c2d->allocY(x_temp2); c2d->allocY(y_temp2); c2d->allocY(z_temp2);
-
-        c2d->transposeX2Y(x_temp1, x_temp2);
-        c2d->transposeX2Y(y_temp1, y_temp2);
-        c2d->transposeX2Y(z_temp1, z_temp2);
-
-        delete[] x_temp1;
-        delete[] y_temp1;
-        delete[] z_temp1;
-
-        c2d->updateHalo(x_temp2, x_halo, 1, 1);
-        c2d->updateHalo(y_temp2, y_halo, 1, 1);
-        c2d->updateHalo(z_temp2, z_halo, 1, 1);
-
-        delete[] x_temp2;
-        delete[] y_temp2;
-        delete[] z_temp2;
-*/
-//};
-
-//int AbstractSingleBlockMesh::findCVForPoint(double p[3], double *x_halo, double *y_halo, double *z_halo){
-
-   /* 
-    int base_index = -1;
-    FOR_XYZ_YPEN{
-	
-	base_index = ip;
-
-	//Back out the ip, jp, kp coordinates based off single major index int
-        int jpp =  base_index%pySize[1];
-        int kpp = (base_index/pySize[1])%pySize[2];
-        int ipp =  base_index/(pySize[2]*pySize[1]);
-
-        double box_p[8][3];
-
-        getOrderedBlockCoordinates(ipp, jpp, kpp, x_halo, y_halo, z_halo, box_p);
-
-	if(isPointInHexa(p, box_p)){
-	    break;
-	}else{
-	    base_index = -1;
-	}
-
-    }
-*/
-/*
     int cvListSize, cvList[8192];
 
     adt->buildListForPoint(cvListSize, cvList, p);
@@ -764,15 +342,61 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 	base_index = cvList[ii];
 
 	//Back out the ip, jp, kp coordinates based off single major index int
-	int jp =  base_index%pySize[1];
-	int kp = (base_index/pySize[1])%pySize[2];
-	int ip =  base_index/(pySize[2]*pySize[1]);
+	int i =  base_index%Nx;
+	int j =  (base_index-i)/Nx;
 
-	double box_p[8][3];
+	int ip = base_index;
 
-	getOrderedBlockCoordinates(ip, jp, kp, x_halo, y_halo, z_halo, box_p);	
+        if((i == Nx-1 && !periodicBCX) ||
+	   (j == Ny-1 && !periodicBCY)){
+	     break;
+        }
 
-	if(isPointInHexa(p, box_p)){
+	double a[2], b[2], c[2], d[2];
+
+	a[0] = x[ip];
+	a[1] = y[ip];
+
+	int iii;
+	if(i == Nx-1 && periodicBCX){
+	  iii = j*Nx + 0;
+	  b[0] = x[iii] + periodicXTranslation[0];
+	  b[1] = y[iii] + periodicXTranslation[1];
+	}else{
+	  iii = j*Nx + i + 1;
+	  b[0] = x[iii];
+	  b[1] = y[iii];
+	}
+
+	if(j == Ny-1 && periodicBCY){
+	  iii =   (0)*Nx + i;
+	  c[0] = x[iii] + periodicYTranslation[0];
+	  c[1] = y[iii] + periodicYTranslation[1];
+	}else{
+    	  iii = (j+1)*Nx + i;
+	  c[0] = x[iii];
+	  c[1] = y[iii];
+	}
+
+	if((j==Ny-1) && (i==Nx-1) && periodicBCY && periodicBCX){
+	  iii = 0;
+	  d[0] = x[iii]+periodicXTranslation[0]+periodicYTranslation[0];
+	  d[1] = y[iii]+periodicXTranslation[1]+periodicYTranslation[1];
+	}else if(i==Nx-1 && periodicBCX){
+	  iii = (j+1)*Nx + 0;
+	  d[0] = x[iii]+periodicXTranslation[0];
+	  d[1] = y[iii]+periodicXTranslation[1];
+	}else if(j==Ny-1 && periodicBCY){
+	  iii =  (0)*Nx + i + 1;
+	  d[0] = x[iii]+periodicYTranslation[0];
+	  d[1] = y[iii]+periodicYTranslation[1];
+	}else{
+	  iii = (j+1)*Nx + i + 1;
+	  d[0] = x[iii];
+	  d[1] = y[iii];
+	}
+
+	if(isPointInSquare(p, a, b, c, d)){
 	    base_index = cvList[ii];
 	    break;
 	}else{
@@ -781,111 +405,104 @@ void AbstractSingleBlockMesh::solveForJacobians(){
     }
 
     return base_index;    
-*/
-//}
 
-//void AbstractSingleBlockMesh::initMeshADT(){
-/*
+}
+
+void AbstractSingleBlockMesh::initMeshADT(){
+
 	    //Initialize the ADT object for interpolation and locating points in the grid...
 	     cout << " > Initializing ADT..." << endl;
 
             //Get our coordinates in neighbors across partitions using halo updates
-            double *x_halo = NULL;
-            double *y_halo = NULL;
-            double *z_halo = NULL;
-
-	    generateCoordinateHaloArrays(x_halo, y_halo, z_halo);
   
-	    int Nlocal = pySize[0]*pySize[1]*pySize[2];
-            double (*boundBoxMin)[3] = new double[Nlocal][3];
-            double (*boundBoxMax)[3] = new double[Nlocal][3];
-	   
-	    
- 
-            //Cycle through the halo arrays of coordinates
-            for(int kp = 0; kp < pySize[2]; kp++){
-                for(int jp = 0; jp < pySize[1]; jp++){
-                    for(int ip = 0; ip < pySize[0]; ip++){
+            double (*boundBoxMin)[2] = new double[Nx*Ny][2];
+            double (*boundBoxMax)[2] = new double[Nx*Ny][2];
 
-                        //This is the non-halo array index
-                        int ii = kp*pySize[1]*pySize[0] + jp*pySize[0] + ip;
+	    FOR_Y{
+		FOR_X{
+		    int ip = GET2DINDEX_XY;
 
-                        //This is the non-halo array index, y-major
-                        int ii_major = ip*pySize[2]*pySize[1] + kp*pySize[1] + jp;
-
-
-		        bool xEndFlag = false;
-			if(pyStart[0] + ip == Nx-1){
-			    xEndFlag = true;
-			}
-
-			bool yEndFlag = false;
-			if(jp == Ny-1){
-			    yEndFlag = true;
-			}
-
-			bool zEndFlag = false;
-			if(pyStart[2] + kp == Nz-1){
-			    zEndFlag = true;
-			}      
-
-			bool noBBFlag = false;	
-                        if((xEndFlag && !periodicBCX) ||
-			   (yEndFlag && !periodicBCY) ||
-			   (zEndFlag && !periodicBCZ)){
-                            noBBFlag = true;
-                        }
-
-
-			double box_p[8][3];
-			if(!noBBFlag){
-			    getOrderedBlockCoordinates(ip, jp, kp, x_halo, y_halo, z_halo, box_p);
-			}
-
-			double x_max = -1.0e100; 
-			double y_max = -1.0e100; 
-			double z_max = -1.0e100; 
-			double x_min =  1.0e100;
-			double y_min =  1.0e100;
-			double z_min =  1.0e100;
-
-			if(!noBBFlag){
-
-			    for(int iip = 0; iip < 8; iip++){
-    			       x_max = fmax(x_max, box_p[iip][0]);
-    			       x_min = fmin(x_min, box_p[iip][0]);
-
-    			       y_max = fmax(y_max, box_p[iip][1]);
-    			       y_min = fmin(y_min, box_p[iip][1]);
-
-    			       z_max = fmax(z_max, box_p[iip][2]);
-    			       z_min = fmin(z_min, box_p[iip][2]);
-			    }
-
-		  	}else{
-	 		    x_max = x[ii];
-			    x_min = x[ii];
-			    y_max = y[ii];
-			    y_min = y[ii];
-			    z_min = z[ii];
-			    z_min = z[ii];
-			}
-
-			//We'll usually be accessing this in the major indexing fashion
-             	        boundBoxMin[ii_major][0] = x_min;
-             	        boundBoxMin[ii_major][1] = y_min;
-             	        boundBoxMin[ii_major][2] = z_min;
-			
-;
-		        boundBoxMax[ii_major][0] = x_max; 
-		        boundBoxMax[ii_major][1] = y_max; 
-		        boundBoxMax[ii_major][2] = z_max; 
+		    bool noBBFlag = false;	
+                    if((i == Nx-1 && !periodicBCX) ||
+		       (j == Ny-1 && !periodicBCY)){
+                    	noBBFlag = true;
                     }
-                }
-            }
 
-	    FOR_XYZ_YPEN{
-		FOR_I3{
+		    double x_max = -1.0e100; 
+	   	    double y_max = -1.0e100; 
+		    double x_min =  1.0e100;
+		    double y_min =  1.0e100;
+		
+		    if(!noBBFlag){
+			double xp[4][2];
+
+			xp[0][0] = x[ip];
+			xp[0][1] = y[ip];
+
+			int ii;
+
+			if(i == Nx-1 && periodicBCX){
+			  ii = j*Nx + 0;
+			  xp[1][0] = x[ii] + periodicXTranslation[0];
+			  xp[1][1] = y[ii] + periodicXTranslation[1];
+			}else{
+			  ii = j*Nx + i + 1;
+			  xp[1][0] = x[ii];
+			  xp[1][1] = y[ii];
+			}
+
+			if(j == Ny-1 && periodicBCY){
+			  ii =   (0)*Nx + i;
+			  xp[2][0] = x[ii] + periodicYTranslation[0];
+			  xp[2][1] = y[ii] + periodicYTranslation[1];
+			}else{
+    			  ii = (j+1)*Nx + i;
+			  xp[2][0] = x[ii];
+			  xp[2][1] = y[ii];
+			}
+
+			if((j==Ny-1) && (i==Nx-1) && periodicBCY && periodicBCX){
+			  ii = 0;
+			  xp[3][0] = x[ii]+periodicXTranslation[0]+periodicYTranslation[0];
+			  xp[3][1] = y[ii]+periodicXTranslation[1]+periodicYTranslation[1];
+			}else if(i==Nx-1 && periodicBCX){
+			  ii = (j+1)*Nx + 0;
+			  xp[3][0] = x[ii]+periodicXTranslation[0];
+			  xp[3][1] = y[ii]+periodicXTranslation[1];
+			}else if(j==Ny-1 && periodicBCY){
+			  ii =   (0)*Nx + i + 1;
+			  xp[3][0] = x[ii]+periodicYTranslation[0];
+			  xp[3][1] = y[ii]+periodicYTranslation[1];
+			}else{
+			  ii = (j+1)*Nx + i + 1;
+			  xp[3][0] = x[ii];
+			  xp[3][1] = y[ii];
+			}
+
+			for(int iip = 0; iip < 4; iip++){
+			    x_max = fmax(x_max, xp[iip][0]);
+			    x_min = fmin(x_min, xp[iip][0]);
+
+			    y_max = fmax(y_max, xp[iip][1]);
+			    y_min = fmin(y_min, xp[iip][1]);
+			}
+
+		    }else{
+			x_max = x[ip];	
+			x_min = x[ip];	
+			y_max = y[ip];
+			y_min = y[ip];
+		    }
+
+		    boundBoxMin[ip][0] = x_min;
+		    boundBoxMin[ip][1] = y_min;
+		    boundBoxMax[ip][0] = x_max;
+		    boundBoxMax[ip][1] = y_max;
+		}
+	    }
+
+	    FOR_XY{
+		FOR_I2{
 		    double delta = 1.0E-6*(boundBoxMax[ip][i] - boundBoxMin[ip][i]);
 		    boundBoxMax[ip][i] += delta;
 		    boundBoxMin[ip][i] -= delta;
@@ -894,7 +511,7 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 
 	     cout << " > Done getting bounding boxes for the CV's, initializing ADT... " << endl;
 
-	    adt = new Adt<double>(Nlocal, boundBoxMin, boundBoxMax);
+	    adt = new Adt<double>(Nx*Ny, boundBoxMin, boundBoxMax);
 
 	     cout << " > Done!" << endl;
 
@@ -904,12 +521,9 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 
 	    delete[] boundBoxMin;
 	    delete[] boundBoxMax;
-	    delete[] x_halo;
-	    delete[] y_halo;
-	    delete[] z_halo;
-*/
 
-//}
+
+}
 
 
 void AbstractSingleBlockMesh::handlePeriodicStuff(){

@@ -158,13 +158,13 @@ int main(int argc, char *argv[]){
 
 		double r2, pt;
 		
-		r2 = (cs->msh->x[i] - M_PI)*(cs->msh->x[i] - M_PI) + (cs->msh->y[j] - M_PI)*(cs->msh->y[j] - M_PI); 
+		r2 = (cs->msh->x[ip] - M_PI)*(cs->msh->x[ip] - M_PI) + (cs->msh->y[ip] - M_PI)*(cs->msh->y[ip] - M_PI); 
 
 		pt = 1.0*exp(-r2/0.000001);
 
                 cs->rho0[ip] = 1.0;
                 cs->p0[ip]   = (pt +1.0)/cs->ig->gamma;
-                cs->U0[ip]   = 0.1;
+                cs->U0[ip]   = 0.0;
                 cs->V0[ip]   = 0.0;
             }
         }

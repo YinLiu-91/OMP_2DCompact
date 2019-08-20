@@ -152,12 +152,14 @@ void CurvilinearCSolver::calcDtFromCFL(){
     double *UChar_dx;
     UChar_dx = new double[N];
 
+    #pragma omp parallel for
     FOR_XY{
 	UChar_dx[ip] = J11[ip]*(fabs(U[ip]) + sos[ip])/dom->dx + J22[ip]*(fabs(V[ip])+sos[ip])/dom->dy;
     }
 
     //Get the largest value in the domain
     double lmax_UChar_dx = -100000.0;
+    #pragma omp parallel for reduction(max:lmax_UChar_dx)
     FOR_XY{
 	if(UChar_dx[ip] > lmax_UChar_dx){
 	    lmax_UChar_dx = UChar_dx[ip];
@@ -334,20 +336,17 @@ void CurvilinearCSolver::preStepDerivatives(){
     preCont_1 = temp14; preCont_2 = temp15;
     
 
-    double b_1, b_2, b_3;
-    double q_1, q_2, q_3;
-
     //Do LES/Bulk viscosity model stuff here...
     //we'll pre-calculate the velocity tensor...
-    double *gradU[3][3];
+    double *gradU[2][2];
     gradU[0][0] = temp16; 
     gradU[0][1] = temp17; 
     gradU[1][0] = temp18; 
     gradU[1][1] = temp19; 
 
     //Now recalculate properties in the new space
+    #pragma omp parallel for
     FOR_XY{
-
 	//Calculate our velocity gradient tensor
    	gradU[0][0][ip] = J11[ip]*dU1[ip] + J21[ip]*dU2[ip];
 	gradU[0][1][ip] = J12[ip]*dU1[ip] + J22[ip]*dU2[ip];
@@ -409,7 +408,11 @@ void CurvilinearCSolver::preStepDerivatives(){
     } 
 */
 
+    #pragma omp parallel for
     FOR_XY{
+
+        double b_1, b_2, b_3;
+        double q_1, q_2, q_3;
 
    	double dUdx = gradU[0][0][ip]; 
 	double dUdy = gradU[0][1][ip];
@@ -508,11 +511,6 @@ void CurvilinearCSolver::preStepDerivatives(){
 
     }
 
-    getRange(preMom1_1, "preMom1_1", Nx, Ny);
-    getRange(preMom1_2, "preMom1_2", Nx, Ny);
-    getRange(preMom2_1, "preMom2_1", Nx, Ny);
-    getRange(preMom2_2, "preMom2_2", Nx, Ny);
-
 /*
     if(useTiming){
 	ftt2 = MPI_Wtime();
@@ -558,9 +556,9 @@ void CurvilinearCSolver::solveContinuity(){
         rhoP = rhok;
     }
 
-    double spgSource;
-	
+    #pragma omp parallel for
     FOR_XY{
+        double spgSource;
 
 	if(spongeFlag)
 	    spgSource = calcSpongeSource(rhoP[ip], spg->spongeRhoAvg[ip], spg->sigma[ip]);
@@ -588,8 +586,9 @@ void CurvilinearCSolver::solveXMomentum(){
         rhoUP = rhoUk;
     }
 
-    double spgSource;
+    #pragma omp parallel for
     FOR_XY{
+        double spgSource;
 
 	if(spongeFlag)
 	    spgSource = calcSpongeSource(rhoUP[ip], spg->spongeRhoUAvg[ip], spg->sigma[ip]);
@@ -621,9 +620,9 @@ void CurvilinearCSolver::solveYMomentum(){
         rhoVP = rhoVk;
     }
 
-    double spgSource;
-
+    #pragma omp parallel for
     FOR_XY{ 
+        double spgSource;
 
         if(spongeFlag)
             spgSource = calcSpongeSource(rhoVP[ip], spg->spongeRhoVAvg[ip], spg->sigma[ip]);
@@ -655,8 +654,9 @@ void CurvilinearCSolver::solveEnergy(){
         rhoEP = rhoEk;
     }
 
-    double spgSource;
+    #pragma omp parallel for
     FOR_XY{
+        double spgSource;
 
         if(spongeFlag)
             spgSource = calcSpongeSource(rhoEP[ip], spg->spongeRhoEAvg[ip], spg->sigma[ip]);
@@ -791,12 +791,9 @@ void CurvilinearCSolver::updateNonConservedData(){
 
 //    if(useTiming) ft1 = MPI_Wtime();
 
-    int Nx = Nx;
-    int Ny = Ny;
-
-
     if(!rkLast){
 
+	#pragma omp parallel for
 	FOR_XY{
 	    U[ip]   = ig->solveU(rhok[ip], rhoUk[ip]);
 	    V[ip]   = ig->solveU(rhok[ip], rhoVk[ip]);
@@ -810,6 +807,7 @@ void CurvilinearCSolver::updateNonConservedData(){
 
     }else if(rkLast){
 
+	#pragma omp parallel for
 	FOR_XY{
 	    U[ip]   = ig->solveU(rho1[ip], rhoU1[ip]);
 	    V[ip]   = ig->solveU(rho1[ip], rhoV1[ip]);
@@ -885,9 +883,6 @@ void CurvilinearCSolver::checkSolution(){
             cout << "  Time since last timestep = " << t2 - t1  << endl;
 	
 
-//	int Nx = Nx;
-//	int Ny = Nx;
-
 	if(spongeFlag)
 	    getRange(spg->sigma, "SIGMA", Nx, Ny);
 
@@ -899,6 +894,8 @@ void CurvilinearCSolver::checkSolution(){
         getRange(p, "P", Nx, Ny);
         getRange(T, "T", Nx, Ny);
         getRange(mu, "mu", Nx, Ny);
+        getRange(rhoU1, "RHOU", Nx, Ny);
+        getRange(rhoV1, "RHOV", Nx, Ny);
         getRange(rhoE1, "RHOE", Nx, Ny);
         getRange(sos, "SOS", Nx, Ny);
 /*

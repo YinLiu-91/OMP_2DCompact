@@ -128,6 +128,11 @@ int main(int argc, char *argv[]){
     //Attach the mesh object to the solver...
     cs->msh = new AlgebraicSingleBlockMesh(cs, d);
 
+    //ADT testing
+    double p[2] = {2.0, 2.0};
+    int icv = cs->msh->findCVForPoint(p);
+    cout << icv << ", " << cs->msh->x[icv] << "," << cs->msh->y[icv] << endl;
+
     ///////////////////////////////////////////
     //Initialize Execution Loop and RK Method//
     ///////////////////////////////////////////
@@ -244,7 +249,7 @@ int main(int argc, char *argv[]){
 
     CurvilinearCSolver *cs_downcast = static_cast<CurvilinearCSolver*>(cs);
 
-    cs_downcast->addImageOutput(new PngWriter(25, 512, 512, cs->p, "P", PngWriter::RAINBOW));
+    cs_downcast->addImageOutput(new PngWriter(25, 512, 512, cs_downcast->p, "P", PngWriter::GREYSCALE));
 
     ////////////////////////////////////////
     //Execute the solver timestepping loop//

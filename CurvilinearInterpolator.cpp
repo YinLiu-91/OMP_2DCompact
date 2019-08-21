@@ -46,6 +46,10 @@ void CurvilinearInterpolator::interpolateData(double *dataIn, double *interpedDa
 	for(int jj = 0; jj < 4; jj++){
 	    interpedDataOut[ii] += Ni[ii][jj]*box_data[jj]; 
 	}
+
+	//For now just give us something
+	//interpedDataOut[ii] = dataIn[icv];
+//	cout << icv << " " << interpedDataOut[ii] << " " << cs->msh->x[icv] << endl;
     }
   
 };

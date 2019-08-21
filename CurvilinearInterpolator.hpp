@@ -50,9 +50,10 @@ class CurvilinearInterpolator{
 	for(int ip = 0; ip < Npoints;  ip++){
 
 	    double p[2] = {pointList[ip][0], pointList[ip][1]};
-	
+
+    	//    cout << p[0] << " " << p[1] << endl;	    
 	    int icv = cs->msh->findCVForPoint(p);
-		
+	
   	    if(icv != -1){
 		pointFoundCount++;
 		icvList.push_back(icv);
@@ -293,10 +294,6 @@ class CurvilinearInterpolator{
 */
 	}
     }
-
-    void getDataHalo(double *dataIn, double *&dataHalo);
-
-    void getOrderedBlockData(int ip, int jp, int kp, double *dataHalo, double box_data[8]);
 
     void interpolateData(double *dataIn, double *interpedDataOut);  
 

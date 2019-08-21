@@ -1153,13 +1153,12 @@ void CurvilinearCSolver::generateImagePlane(PngWriter *pw){
     //Now calculate the positions of the pixels
     for(int ip = 0; ip < N1; ip++){
 	for(int jp = 0; jp < N2; jp++){
-	    int ii = ip*N2 + jp;
+	    int ii = jp*N1 + ip;
 	    pointList[ii][0] = base1 + dx*(double)ip;
 	    pointList[ii][1] = base2 + dx*(double)jp;	
 	}
     }
 
-    
     pw->ci = new CurvilinearInterpolator(this, pointList, N1*N2);
 
     delete[] pointList;

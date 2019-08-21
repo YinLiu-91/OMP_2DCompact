@@ -62,8 +62,10 @@ class AlgebraicSingleBlockMesh:public AbstractSingleBlockMesh{
 void AlgebraicSingleBlockMesh::getMesh(){
 
 	    //Get the global mins/maxes
-	    double x_min = 1e10, y_min = 1e10;
-	    double x_max =-1e10, y_max =-1e10;
+	    double x_minl = 1e10;
+	    double y_minl = 1e10;
+	    double x_maxl =-1e10;
+	    double y_maxl =-1e10;
 	    bool readInGrid = cs->opt->fromRestart || cs->opt->onlyGridFromRestart;
   
 	    if(readInGrid){
@@ -122,7 +124,8 @@ void AlgebraicSingleBlockMesh::getMesh(){
 	    }else{
 	         //Generate the mesh algebraically...
 
-		    #pragma omp parallel for reduction(min:x_min, y_min) reduction(max:y_max,x_max)
+
+		    #pragma omp parallel for reduction(min:x_minl, y_minl) reduction(max:y_maxl,x_maxl)
 		    FOR_Y{
 		        FOR_X{
 			    int ip = GET2DINDEX_XY;
@@ -137,23 +140,28 @@ void AlgebraicSingleBlockMesh::getMesh(){
 			    //generateCylinderGrid(xi_in, jj, Ny, ii, Nx, x_out);
 			    //generateNozzleGrid(xi_in, x_out);
 
-			    x[ip] = 2.0*M_PI*xi_in[0];
 			    y[ip] = 2.0*M_PI*xi_in[1];
+			    x[ip] = 2.0*M_PI*xi_in[0]+y[ip];
 
 //			    x[ip] = xi_in[0];
 //			    y[ip] = xi_in[1];
 //			    z[ip] = xi_in[2];
 
 			    //Since we're already in this loop, calculate the local max and mins
-			    x_min = fmin(x_min, x[ip]);
-			    y_min = fmin(y_min, y[ip]);
+			    x_minl = fmin(x_minl, x[ip]);
+			    y_minl = fmin(y_minl, y[ip]);
 	
-			    x_max = fmax(x_max, x[ip]);
-			    y_max = fmax(x_max, y[ip]);
+			    x_maxl = fmax(x_maxl, x[ip]);
+			    y_maxl = fmax(y_maxl, y[ip]);
  
 		        }
 		    }
 	    }
+
+	    x_min = x_minl;
+	    y_min = y_minl;
+	    x_max = x_maxl;
+	    y_max = y_maxl;
 
 	    //Reduce to get the global bounding box
 	    //MPI_Allreduce(x_min_local, x_min, 3, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);

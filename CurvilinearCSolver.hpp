@@ -10,8 +10,8 @@
 #include "Utils.hpp"
 #include "SpongeBC.hpp"
 #include "AbstractCSolver.hpp"
-//#include "PngWriter.hpp"
-//#include "CurvilinearInterpolator.hpp"
+#include "PngWriter.hpp"
+#include "CurvilinearInterpolator.hpp"
 #include "Pade6.hpp"
 //#include "Penta10.hpp"
 //#include "CD2.hpp"
@@ -78,7 +78,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 	double Y0WallU, Y1WallU;
 
 	//For drawing images
-	//list<PngWriter*> imageList;
+	list<PngWriter*> imageList;
 
 	//Statstics object
 	//Stats *stats;
@@ -211,8 +211,8 @@ class CurvilinearCSolver: public AbstractCSolver{
 	}
 
 	//Pre solver utility functions
-	//void addImageOutput(PngWriter *pw);
-	//void generateImagePlane(PngWriter *pw);
+	void addImageOutput(PngWriter *pw);
+	void generateImagePlane(PngWriter *pw);
 
 	//Pre Step Functions...
 	void calcDtFromCFL();
@@ -235,7 +235,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 	//Post Step Functions
 	void updateSponge();
 	void writeImages();
-	//void writePlaneImageForVariable(PngWriter *pw);
+	void writePlaneImageForVariable(PngWriter *pw);
 	void checkSolution();
 	void dumpSolution();
 	void checkEnd();
@@ -275,7 +275,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 
    	    if(timeStep == opt->timeStep){
 //        	dumpSolution();
-        	//writeImages();
+        	writeImages();
     	    }
     	    calcDtFromCFL();
 
@@ -321,7 +321,7 @@ class CurvilinearCSolver: public AbstractCSolver{
 
 	    fullStepTemporalHook();
 
-    	    //updateSponge();
+    	    updateSponge();
     	    checkSolution();
 
 	    //if(timeStep%opt->stats_interval == 0 && statsFlag){
@@ -333,7 +333,7 @@ class CurvilinearCSolver: public AbstractCSolver{
        // 	dumpSolution();
 //	    }
 
-       	    //writeImages();
+       	    writeImages();
 
     	    checkEnd();
 

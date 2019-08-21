@@ -1057,12 +1057,12 @@ void CurvilinearCSolver::dumpSolution(){
 
 }
 
-//void CurvilinearCSolver::addImageOutput(PngWriter *png){
-//    imageList.push_back(png);
-//}
+void CurvilinearCSolver::addImageOutput(PngWriter *png){
+    imageList.push_back(png);
+}
 
-//void CurvilinearCSolver::writeImages(){
-/*
+void CurvilinearCSolver::writeImages(){
+
 //    if(useTiming) ft1 = MPI_Wtime();
 
     //Get the timestep string just in case...
@@ -1112,274 +1112,141 @@ void CurvilinearCSolver::dumpSolution(){
 */
 
 
-//}
+}
 
-//void CurvilinearCSolver::generateImagePlane(PngWriter *pw){
-/*
+void CurvilinearCSolver::generateImagePlane(PngWriter *pw){
+
     int N1 = pw->nx, N2 = pw->ny; 
-    int plane    = pw->planeInd;
-    double fraction = pw->fraction;
+    double (*pointList)[2] = NULL;
 
-    double (*pointList)[3] = NULL;
+    pointList = new double[N1*N2][2];
 
-    if(plane == 0){
+    //See which case is the limited box size
+    double d1, d2;
+    if(pw->bboxFlag){
+	d1 = (pw->x_max[0] - pw->x_min[0])/((double)N1 + 1.0);
+	d2 = (pw->x_max[1] - pw->x_min[1])/((double)N2 + 1.0);
+    }else{
+	d1 = (msh->x_max - msh->x_min)/((double)N1 + 1.0);
+	d2 = (msh->y_max - msh->y_min)/((double)N2 + 1.0);
+    }
 
-	pointList = new double[N1*N2][3];
+    double dx = fmax(d1, d2);
 
-	//Get the plane location coordinate
-	double x_plane = fraction*(msh->x_max[0]-msh->x_min[0]) + msh->x_min[0];
+    //Get the base locations
+    double base1, base2;
+    if(pw->bboxFlag){
+	base1 = pw->x_min[0] + dx/2;
+	base2 = pw->x_min[1] + dx/2;
 
-	//Get the coordinates for this case...
-	//each pixel should represent a equal area box
-
-
-	double d1, d2;	
-	//See which case is the limiting box size
-	if(pw->bboxFlag){
-	    d1 = (pw->x_max[1]-pw->x_min[1])/((double)N1+1.0);
-	    d2 = (pw->x_max[2]-pw->x_min[2])/((double)N2+1.0);
+	if((pw->x_max[1]-pw->x_min[1])>(pw->x_max[0]-pw->x_min[0])){
+	    base1 -= (dx*(N1-1))/2.0-(pw->x_max[0]- pw->x_min[0])/2.0;
 	}else{
-	    d1 = (msh->x_max[1]-msh->x_min[1])/((double)N1+1.0);
-	    d2 = (msh->x_max[2]-msh->x_min[2])/((double)N2+1.0);
+	    base2 -= (dx*(N2-1))/2.0-(pw->x_max[1]- pw->x_min[1])/2.0;
 	}
 
-	//limited by the larger box...
-	double dx = fmax(d1, d2);
+    }else{
+	base1 = msh->x_min + dx/2;
+	base2 = msh->y_min + dx/2;
+    }
 
-	//Doing the pixed kind of as a "cell centered" location
-	double base1, base2;
-	if(pw->bboxFlag){
-	    base1 = pw->x_min[1] + dx/2;
-	    base2 = pw->x_min[2] + dx/2;
-	    
-	    if((pw->x_max[2]-pw->x_min[2])>(pw->x_max[1]-pw->x_min[1])){
-		base1 -= (dx*(N1-1))/2.0 - (pw->x_max[1]- pw->x_min[1])/2.0;
-	    }else{
-		base2 -= (dx*(N2-1))/2.0 - (pw->x_max[2]- pw->x_min[2])/2.0;
-	    }
-
-	}else{
-	    base1 = msh->x_min[1] + dx/2;
-	    base2 = msh->x_min[2] + dx/2;
+    //Now calculate the positions of the pixels
+    for(int ip = 0; ip < N1; ip++){
+	for(int jp = 0; jp < N2; jp++){
+	    int ii = ip*N2 + jp;
+	    pointList[ii][0] = base1 + dx*(double)ip;
+	    pointList[ii][1] = base2 + dx*(double)jp;	
 	}
+    }
 
-	//Finally calculating the positions of the pixels
-	for(int ip = 0; ip < N1; ip++){
-	    for(int jp = 0; jp < N2; jp++){
-		int ii = ip*N2 + jp;
-		pointList[ii][0] = x_plane;
-		pointList[ii][1] = base1 + dx*(double)ip;
-		pointList[ii][2] = base2 + dx*(double)jp;
-	    }
-	}
-
-    }else if(plane == 1){
-
-	pointList = new double[N1*N2][3];
-
-	//Get the plane location coordinate
-	double y_plane = fraction*(msh->x_max[1] - msh->x_min[1]) + msh->x_min[1];
-
-	//See which case is the limited box size
-	double d1, d2;
-	if(pw->bboxFlag){
-	    d1 = (pw->x_max[2] - pw->x_min[2])/((double)N1 + 1.0);
-	    d2 = (pw->x_max[0] - pw->x_min[0])/((double)N2 + 1.0);
-	}else{
-	    d1 = (msh->x_max[2] - msh->x_min[2])/((double)N1 + 1.0);
-	    d2 = (msh->x_max[0] - msh->x_min[0])/((double)N2 + 1.0);
-	}
-
-	double dx = fmax(d1, d2);
-
-	//Get the base locations
-	double base1, base2;
-	if(pw->bboxFlag){
-	    base1 = pw->x_min[2] + dx/2;
-	    base2 = pw->x_min[0] + dx/2;
-
-	    if((pw->x_max[0]-pw->x_min[0])>(pw->x_max[2]-pw->x_min[2])){
-		base1 -= (dx*(N2-1))/2.0-(pw->x_max[2]- pw->x_min[2])/2.0;
-	    }else{
-		base2 -= (dx*(N1-1))/2.0-(pw->x_max[0]- pw->x_min[0])/2.0;
-	    }
-
-	}else{
-	    base1 = msh->x_min[2] + dx/2;
-	    base2 = msh->x_min[0] + dx/2;
-	}
-
-	//Now calculate the positions of the pixels
-	for(int ip = 0; ip < N1; ip++){
-	    for(int jp = 0; jp < N2; jp++){
-		int ii = ip*N2 + jp;
-		pointList[ii][0] = base2 + dx*(double)jp;
-		pointList[ii][1] = y_plane;
-		pointList[ii][2] = base1 + dx*(double)ip;
-
-	    }
-	}
-
-	
-
-    }else if(plane == 2){
- 
-	pointList = new double[N1*N2][3];
-
-	//Get the plane location coordinate
-	double z_plane = fraction*(msh->x_max[2]-msh->x_min[2]) + msh->x_min[2];
-
-	//See which case is the limited box size
-	double d1, d2;
-	if(pw->bboxFlag){
-	    d1 = (pw->x_max[0] - pw->x_min[0])/((double)N1 + 1.0);
-	    d2 = (pw->x_max[1] - pw->x_min[1])/((double)N2 + 1.0);
-	}else{
-	    d1 = (msh->x_max[0] - msh->x_min[0])/((double)N1 + 1.0);
-	    d2 = (msh->x_max[1] - msh->x_min[1])/((double)N2 + 1.0);
-	}
-
-	double dx = fmax(d1, d2);
-
-	//Get the base locations
-	double base1, base2;
-	if(pw->bboxFlag){
-	    base1 = pw->x_min[0] + dx/2;
-	    base2 = pw->x_min[1] + dx/2;
-
-	    if((pw->x_max[1]-pw->x_min[1])>(pw->x_max[0]-pw->x_min[0])){
-		base1 -= (dx*(N1-1))/2.0-(pw->x_max[0]- pw->x_min[0])/2.0;
-	    }else{
-		base2 -= (dx*(N2-1))/2.0-(pw->x_max[1]- pw->x_min[1])/2.0;
-	    }
-
-	}else{
-	    base1 = msh->x_min[0] + dx/2;
-	    base2 = msh->x_min[1] + dx/2;
-	}
-
-	//Now calculate the positions of the pixels
-	for(int ip = 0; ip < N1; ip++){
-	    for(int jp = 0; jp < N2; jp++){
-	        int ii = ip*N2 + jp;
-		pointList[ii][0] = base1 + dx*(double)ip;
-		pointList[ii][1] = base2 + dx*(double)jp;	
-		pointList[ii][2] = z_plane;
-	    }
-	}
-
-   }else{
-	cout << "Shouldn't be here in image writer?" << endl;
-   }
     
     pw->ci = new CurvilinearInterpolator(this, pointList, N1*N2);
 
     delete[] pointList;
-*/
-//}
+}
 
-//void CurvilinearCSolver::writePlaneImageForVariable(PngWriter *pw){
-/*
+void CurvilinearCSolver::writePlaneImageForVariable(PngWriter *pw){
+
     int N1 = pw->nx;
     int N2 = pw->ny;
     double *var = pw->fieldPtr;
 
-    double *ff_ci = new double[N1*N2];
-    pw->ci->interpolateData(var, ff_ci);
+    double *ff = new double[N1*N2];
+    pw->ci->interpolateData(var, ff);
   
-    double *ff_local = new double[N1*N2];
-    double *ff       = new double[N1*N2];
-    for(int ip = 0; ip < N1*N2; ip++){
-	ff_local[ip] = -1000000.0;
-    }
-    
-    for(int ip = 0; ip < pw->ci->localPointFoundCount; ip++){
-	ff_local[pw->ci->pointIndex[ip]] = ff_ci[ip];
-    }
-
-    delete[] ff_ci;
-
-    MPI_Reduce(ff_local, ff, N1*N2, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-
-    delete[] ff_local;
-
-    IF_RANK0{
-
-	double dataMin =  100000000.0;
-	double dataMax = -100000000.0;
+    double dataMin =  100000000.0;
+    double dataMax = -100000000.0;
 
 
-	if(pw->valFlag == true){
-	    dataMin = pw->valMin;
-	    dataMax = pw->valMax;
-	}else{
-	    //get the max/min value in the plane...
-	    for(int ip = 0; ip < N1*N2; ip++){
-	        if(ff[ip] > -100000.0){
-	            dataMin = fmin(dataMin, ff[ip]);
-	            dataMax = fmax(dataMax, ff[ip]);
-	        }
-	    }
-	}
-
-	//Scale pixel value to local min and max
-	int *r = new int[N1*N2];
-	int *g = new int[N1*N2];
-	int *b = new int[N1*N2];
+    if(pw->valFlag == true){
+	dataMin = pw->valMin;
+	dataMax = pw->valMax;
+    }else{
+	//get the max/min value in the plane...
 	for(int ip = 0; ip < N1*N2; ip++){
-
-	   double phitemp = (ff[ip] - dataMin)/(dataMax - dataMin); 
-
-	   if((dataMax - dataMin) < 1E-6){
-		phitemp = 0.0;
-	   }
-
-	   if(phitemp > 1.0){
-	       phitemp = 1.0;
-	   }
-
-	   if(phitemp < 0.0){
-	       phitemp = 0.0;
-	   }
-
-	   if(pw->cm == PngWriter::BWR){
-	       pw->getPARAVIEW_BWR(phitemp, r[ip], g[ip], b[ip]);
-	   }else if(pw->cm == PngWriter::RAINBOW){
-	       pw->getRainbowColormap(phitemp, r[ip], g[ip], b[ip]);
-	   }else if(pw->cm == PngWriter::GREYSCALE){ 
-	       r[ip] = (int)(phitemp*255.0);
-	       g[ip] = (int)(phitemp*255.0);
-	       b[ip] = (int)(phitemp*255.0);
-	   }	  
-
-	}
-
-	for(int jp = 0; jp < N2; jp++){
-	    for(int ip = 0; ip < N1; ip++){
-		int ii = jp*N1 + ip;
-		//Grayscale image...
-		if(ff[ii] > -100000.0){
-		    pw->set(ip, jp, r[ii], g[ii], b[ii]);
-		}else{
-		    pw->set(ip, jp, 73, 175, 205);
-		}
+	    if(ff[ip] > -100000.0){
+	        dataMin = fmin(dataMin, ff[ip]);
+	        dataMax = fmax(dataMax, ff[ip]);
 	    }
 	}
-
-	string imageName = pw->varName;
-	imageName.append(".");
-	imageName.append(pw->timeStepString);
-	imageName.append(".png");
-	pw->write(imageName.c_str());
-
-	delete[] r;
-	delete[] g;
-	delete[] b;
     }
 
+    //Scale pixel value to local min and max
+    int *r = new int[N1*N2];
+    int *g = new int[N1*N2];
+    int *b = new int[N1*N2];
+    for(int ip = 0; ip < N1*N2; ip++){
+
+	double phitemp = (ff[ip] - dataMin)/(dataMax - dataMin); 
+
+	if((dataMax - dataMin) < 1E-6){
+	    phitemp = 0.0;
+	}
+
+	if(phitemp > 1.0){
+	    phitemp = 1.0;
+	}
+
+	if(phitemp < 0.0){
+	   phitemp = 0.0;
+	}
+
+	if(pw->cm == PngWriter::BWR){
+	    pw->getPARAVIEW_BWR(phitemp, r[ip], g[ip], b[ip]);
+	}else if(pw->cm == PngWriter::RAINBOW){
+	    pw->getRainbowColormap(phitemp, r[ip], g[ip], b[ip]);
+	}else if(pw->cm == PngWriter::GREYSCALE){ 
+	    r[ip] = (int)(phitemp*255.0);
+	    g[ip] = (int)(phitemp*255.0);
+	    b[ip] = (int)(phitemp*255.0);
+	}	  
+
+    }
+
+    for(int jp = 0; jp < N2; jp++){
+	for(int ip = 0; ip < N1; ip++){
+	    int ii = jp*N1 + ip;
+	    //Grayscale image...
+	    if(ff[ii] > -100000.0){
+		pw->set(ip, jp, r[ii], g[ii], b[ii]);
+	    }else{
+		pw->set(ip, jp, 73, 175, 205);
+	    }
+	}
+    }
+
+    string imageName = pw->varName;
+    imageName.append(".");
+    imageName.append(pw->timeStepString);
+    imageName.append(".png");
+    pw->write(imageName.c_str());
+
+    delete[] r;
+    delete[] g;
+    delete[] b;
     delete[] ff;
-*/
-//}
+
+}
 
 bool CurvilinearCSolver::checkForAndDeleteKillFile(string killFileName){
 

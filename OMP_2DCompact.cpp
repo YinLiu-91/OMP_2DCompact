@@ -33,7 +33,7 @@ using namespace std::chrono;
 #include "AbstractDerivatives.hpp"
 #include "Pade6.hpp"
 
-//#include "CurvilinearInterpolator.hpp"
+#include "CurvilinearInterpolator.hpp"
 
 int main(int argc, char *argv[]){
 
@@ -160,7 +160,7 @@ int main(int argc, char *argv[]){
 		
 		r2 = (cs->msh->x[ip] - M_PI)*(cs->msh->x[ip] - M_PI) + (cs->msh->y[ip] - M_PI)*(cs->msh->y[ip] - M_PI); 
 
-		pt = 1.0*exp(-r2/0.000001);
+		pt = 0.1*exp(-r2/0.01);
 
                 cs->rho0[ip] = 1.0;
                 cs->p0[ip]   = (pt +1.0)/cs->ig->gamma;
@@ -242,9 +242,9 @@ int main(int argc, char *argv[]){
     //This is probably bad programming, but we'll downcast the abstract solver class pointer to the
     //solver pointer so we can access the add image function and the solver member we want to print out
 
- //   CurvilinearCSolver *cs_downcast = static_cast<CurvilinearCSolver*>(cs);
+    CurvilinearCSolver *cs_downcast = static_cast<CurvilinearCSolver*>(cs);
 
-//    cs_downcast->addImageOutput(new PngWriter(25, 512, 512, cs->varData[4], "DIL", 2, 0.5, PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 512, 512, cs->p, "P", PngWriter::RAINBOW));
 
     ////////////////////////////////////////
     //Execute the solver timestepping loop//

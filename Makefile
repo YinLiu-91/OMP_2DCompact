@@ -1,12 +1,12 @@
 
 include Makefile.in
 
-OBJECTS  = OMP_2DCompact.o AbstractSingleBlockMesh.cpp Utils.o Pade6.o Compact10Filter.o Options.o CurvilinearCSolver_Core.o CurvilinearCSolver_BC.o SpongeBC.o 
+OBJECTS  = OMP_2DCompact.o AbstractSingleBlockMesh.cpp Utils.o Pade6.o Compact10Filter.o Options.o CurvilinearCSolver_Core.o CurvilinearCSolver_BC.o SpongeBC.o CurvilinearInterpolator.o
 #POSTPROOBJ = Utils.o Derivatives.o PostProcess.o VisitWriter.o
 
 all: OMP_2DCOMPACT.exe
 
-OMP_2DCompact.o: OMP_2DCompact.cpp Macros.hpp Options.hpp TimeStepping.hpp Domain.hpp BC.hpp AbstractCSolver.hpp AbstractRK.hpp TVDRK3.hpp AbstractSingleBlockMesh.hpp AlgebraicSingleBlockMesh.hpp AbstractDerivatives.hpp Pade6.hpp CurvilinearCSolver.hpp
+OMP_2DCompact.o: OMP_2DCompact.cpp Macros.hpp Options.hpp TimeStepping.hpp Domain.hpp BC.hpp AbstractCSolver.hpp AbstractRK.hpp TVDRK3.hpp AbstractSingleBlockMesh.hpp AlgebraicSingleBlockMesh.hpp AbstractDerivatives.hpp Pade6.hpp CurvilinearCSolver.hpp CurvilinearInterpolator.hpp 
 	$(CC) $(CFLAGS) -c $< 
 
 CurvilinearCSolver_Core.o: CurvilinearCSolver_Core.cpp CurvilinearCSolver.hpp Macros.hpp Options.hpp Utils.hpp AbstractCSolver.hpp Pade6.hpp Compact10Filter.hpp
@@ -32,6 +32,11 @@ Utils.o: Utils.cpp Domain.hpp Utils.hpp
 
 Options.o: Options.cpp Options.hpp
 	$(CC) $(CFLAGS) -c $< 
+
+CurvilinearInterpolator.o: CurvilinearInterpolator.cpp CurvilinearInterpolator.hpp Macros.hpp Utils.hpp AbstractCSolver.hpp AlgebraicSingleBlockMesh.hpp BC.hpp Domain.hpp Options.hpp
+	$(CC) $(CFLAGS) -c $< 
+
+
 
 OMP_2DCOMPACT.exe:  $(OBJECTS)
 	$(CC) $(CFLAGS) -I$(INC) $(OBJECTS) -o $@ -L$(LIB) $(LIBF)

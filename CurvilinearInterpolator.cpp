@@ -7,6 +7,7 @@ void CurvilinearInterpolator::interpolateData(double *dataIn, double *interpedDa
 
         //Get the ip, jp, kp based off index
         int icv = icvList[ii];
+
         int i = icv%Nx;
 	int j = (icv-i)/Nx;
 

@@ -55,6 +55,8 @@ class CurvilinearInterpolator{
 	    int icv = cs->msh->findCVForPoint(p);
 	
   	    if(icv != -1){
+	//	cout << icv << " " << p[0] << " " << p[1] << endl;
+
 		pointFoundCount++;
 		icvList.push_back(icv);
 		pointIndex.push_back(ip);

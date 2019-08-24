@@ -1151,13 +1151,15 @@ void CurvilinearCSolver::generateImagePlane(PngWriter *pw){
     }
 
     //Now calculate the positions of the pixels
-    for(int ip = 0; ip < N1; ip++){
-	for(int jp = 0; jp < N2; jp++){
+    for(int jp = 0; jp < N2; jp++){
+        for(int ip = 0; ip < N1; ip++){
 	    int ii = jp*N1 + ip;
 	    pointList[ii][0] = base1 + dx*(double)ip;
 	    pointList[ii][1] = base2 + dx*(double)jp;	
 	}
     }
+
+    cout << pointList[(N2-1)*N1 + N1-1][0] << " " << pointList[(N2-1)*N1 + N1-1][1] << endl;
 
     pw->ci = new CurvilinearInterpolator(this, pointList, N1*N2);
 
@@ -1170,9 +1172,20 @@ void CurvilinearCSolver::writePlaneImageForVariable(PngWriter *pw){
     int N2 = pw->ny;
     double *var = pw->fieldPtr;
 
-    double *ff = new double[N1*N2];
-    pw->ci->interpolateData(var, ff);
-  
+    double *ff_ci = new double[N1*N2];
+    double *ff    = new double[N1*N2];
+ 
+    for(int ip = 0; ip < N1*N2; ip++){
+	ff_ci[ip] = -1000000.0;
+	ff[ip]    = -1000000.0;
+    }
+
+    pw->ci->interpolateData(var, ff_ci);
+ 
+    for(int ip = 0; ip < pw->ci->pointFoundCount; ip++){
+	ff[pw->ci->pointIndex[ip]] = ff_ci[ip];
+    }
+ 
     double dataMin =  100000000.0;
     double dataMax = -100000000.0;
 

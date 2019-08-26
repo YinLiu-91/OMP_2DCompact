@@ -140,8 +140,8 @@ void AlgebraicSingleBlockMesh::getMesh(){
 			    //generateCylinderGrid(xi_in, jj, Ny, ii, Nx, x_out);
 			    //generateNozzleGrid(xi_in, x_out);
 
+			    x[ip] = 2.0*M_PI*xi_in[0];
 			    y[ip] = 2.0*M_PI*xi_in[1];
-			    x[ip] = 2.0*M_PI*xi_in[0]+y[ip];
 
 //			    x[ip] = xi_in[0];
 //			    y[ip] = xi_in[1];

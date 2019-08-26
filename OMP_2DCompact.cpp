@@ -163,13 +163,13 @@ int main(int argc, char *argv[]){
 
 		double r2, pt;
 		
-		r2 = (cs->msh->x[ip] - 2.0*M_PI)*(cs->msh->x[ip] - 2.0*M_PI) + (cs->msh->y[ip] - M_PI)*(cs->msh->y[ip] - M_PI); 
+		r2 = (cs->msh->x[ip] - M_PI)*(cs->msh->x[ip] - M_PI) + (cs->msh->y[ip] - M_PI)*(cs->msh->y[ip] - M_PI); 
 
 		pt = 0.1*exp(-r2/0.01);
 
                 cs->rho0[ip] = 1.0;
                 cs->p0[ip]   = (pt +1.0)/cs->ig->gamma;
-                cs->U0[ip]   = 0.8;
+                cs->U0[ip]   = 0.0;
                 cs->V0[ip]   = 0.0;
             }
         }
@@ -249,11 +249,12 @@ int main(int argc, char *argv[]){
 
     CurvilinearCSolver *cs_downcast = static_cast<CurvilinearCSolver*>(cs);
 
-    cs_downcast->addImageOutput(new PngWriter(25, 1024, 512, cs_downcast->p, "P", PngWriter::RAINBOW));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->p, "P", PngWriter::RAINBOW));
 
     ////////////////////////////////////////
     //Execute the solver timestepping loop//
     ////////////////////////////////////////
+
     rk->executeSolverLoop();  
 
     return 0;

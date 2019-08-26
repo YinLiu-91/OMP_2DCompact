@@ -115,6 +115,7 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 	transposeMatrix_Fast2(dyde2_t, Ny, Nx, dyde2, opt->blocksize);
 
 
+
 	if(periodicBCX){
 
     	    double *Nm3x, *Nm2x, *Nm1x, *Np1x, *Np2x, *Np3x;
@@ -186,17 +187,18 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 
 	}else{
 	    derivX->calc1stDerivField(x, dxde1);
-	    derivX->calc1stDerivField(y, dxde1);
+	    derivX->calc1stDerivField(y, dyde1);
 	}
 
+	//For some reason, in optimized compilers this loop can break things...
 	#pragma omp parallel for
 	FOR_XY{
-	    J[ip]   =  dxde1[ip]*dyde2[ip] - dxde2[ip]*dyde1[ip];
-	    J11[ip] =  dyde2[ip]/J[ip];
-	    J12[ip] = -dxde2[ip]/J[ip];
-	    J21[ip] = -dyde1[ip]/J[ip];
-	    J22[ip] =  dxde1[ip]/J[ip];
-	    J[ip]   =  1.0/J[ip]; 	
+	    double Jt   =  dxde1[ip]*dyde2[ip] - dxde2[ip]*dyde1[ip];
+	    J11[ip] =  dyde2[ip]/Jt;
+	    J12[ip] = -dxde2[ip]/Jt;
+	    J21[ip] = -dyde1[ip]/Jt;
+	    J22[ip] =  dxde1[ip]/Jt;
+	    J[ip]   =  1.0/Jt; 	
   	}
 
 	//Copy data over to solver to make simpler to access
@@ -207,7 +209,11 @@ void AbstractSingleBlockMesh::solveForJacobians(){
 	cs->J22 = J22;
 
 	 cout << "done!" << endl;
-	
+
+	getRange(dxde1, "dxde1", Nx, Ny);	
+	getRange(dyde1, "dyde1", Nx, Ny);	
+	getRange(dxde2, "dxde2", Nx, Ny);	
+	getRange(dyde2, "dyde2", Nx, Ny);	
         getRange(J,     "J", Nx, Ny);
         getRange(J11, "J11", Nx, Ny);
         getRange(J12, "J12", Nx, Ny);

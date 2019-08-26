@@ -103,6 +103,7 @@ class Pade6: public AbstractDerivatives{
 	        b2_1D = -1.0/2.0;
 	        c2_1D =  1.0;
 	        d2_1D =  1.0/18.0;
+		e2_1D =  0.0;
 
 	        /*
 	        //Visbal AC5

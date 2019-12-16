@@ -28,7 +28,7 @@ using namespace std::chrono;
 #include "TVDRK3.hpp"
 //#include "RK4.hpp"
 //#include "KenRK4.hpp"
-//#include "LSLDDRK4.hpp"
+#include "LSLDDRK4.hpp"
 
 #include "AbstractDerivatives.hpp"
 #include "Pade6.hpp"
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]){
     }else if(opt->rkType == Options::KENRK4){
 //        rk = new KenRK4(cs);
     }else if(opt->rkType == Options::LSLDDRK4){
-//        rk = new LSLDDRK4(cs);
+        rk = new LSLDDRK4(cs);
     }else{
 	cout << "SHOULD NEVER GET HERE!" << endl;
     }
@@ -249,7 +249,7 @@ int main(int argc, char *argv[]){
 
     CurvilinearCSolver *cs_downcast = static_cast<CurvilinearCSolver*>(cs);
 
-    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->p, "P", PngWriter::BWR));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->p, "P", 0.9975*(1.0/1.4), 1.0025*(1.0/1.4), PngWriter::BWR));
 
     ////////////////////////////////////////
     //Execute the solver timestepping loop//
@@ -265,21 +265,31 @@ void CurvilinearCSolver::fullStepTemporalHook(){};
 void CurvilinearCSolver::subStepTemporalHook(){};
 void CurvilinearCSolver::preStepBoundaryHook(){};
 void CurvilinearCSolver::postStepBoundaryHook(){};
-double CurvilinearCSolver::contRHSSource(int ip){return 0.0;};
+double CurvilinearCSolver::contRHSSource(int ip){
+
+	return 0.0;
+};
+
 double CurvilinearCSolver::xmomRHSSource(int ip){return 0.0;};
-double CurvilinearCSolver::ymomRHSSource(int ip){return 0.0;};
-double CurvilinearCSolver::engyRHSSource(int ip){
+double CurvilinearCSolver::ymomRHSSource(int ip){
 
 	double x = msh->x[ip];
 	double y = msh->y[ip];
 
-	double r2 = (x - 3.0*M_PI)*(x - 3.0*M_PI) + (y - 1.5*M_PI)*(y - 1.5*M_PI);
-	double pt = 10.*exp(-r2/0.001);
+	double r2 = (x - 3.0*M_PI)*(x - 3.0*M_PI) + (y - 2.0*M_PI)*(y - 2.0*M_PI);
+	double pt = 250.*exp(-r2/0.00005);
 
 	double p_source;
-        p_source = fabs(sin(M_PI*time/2.0)*pt); 	
+        p_source = sin(4.0*time)*pt; 	
+
+
 
 	return p_source;
+};
+
+double CurvilinearCSolver::engyRHSSource(int ip){
+
+	return 0.0;
 };
 
 

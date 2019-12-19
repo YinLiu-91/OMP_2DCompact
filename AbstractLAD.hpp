@@ -17,7 +17,10 @@ class AbstractLAD{
 	AbstractCSolver *cs;
 
 	AbstractFilter *filtX, *filtY;
+	//These are for computing non-high order derivatives
 	AbstractDerivatives *derivX, *derivY;
+	//These are for the high-order derivatives
+	AbstractDerivatives *derivX4, *derivY4;
 
 	double *mu_star;
 	double *beta_star;

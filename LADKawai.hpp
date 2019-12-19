@@ -2,6 +2,8 @@
 #define _CLADKAWAILELEH_
 
 #include "Macros.hpp"
+#include "Options.hpp"
+#include "Utils.hpp"
 #include "AbstractLAD.hpp"
 #include "AbstractFilter.hpp"
 #include "AbstractDerivatives.hpp"
@@ -45,6 +47,10 @@ class LADKawai: public AbstractLAD{
 
     }
 
+    void calcVelocityTensorStuff(double *gradU[2][2]) = 0;
+    void calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
+    void calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
+    void calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
 
 };
 

@@ -22,6 +22,9 @@
 //#include "VremanSGS.hpp"
 //#include "DSMSGS.hpp"
 
+#include "AbstractLAD.hpp"
+#include "LADKawai.hpp"
+
 class CurvilinearCSolver: public AbstractCSolver{
 
     public:
@@ -89,9 +92,15 @@ class CurvilinearCSolver: public AbstractCSolver{
 	//bool LESFlag;
 	//double Pr_t;
 
+	//LAD Object
+	AbstractLAD *lad;
+	bool LADFlag;
+
 	//Alias'd derivative objects
 	AbstractDerivatives *derivXi1, *derivXi2;
 	AbstractFilter *filtXi1, *filtXi2;
+
+	
 
 	//Constructor to use for this class...
 	CurvilinearCSolver(Domain *dom, BC *bc, TimeStepping *ts, Options *opt){
@@ -208,6 +217,15 @@ class CurvilinearCSolver: public AbstractCSolver{
 
 	    t1 = MPI_Wtime();
 */
+	    //Initialize the LAD stuff if we need to
+	    if(opt->ladModel == Options::KAWAI){
+		lad = new LADKawai(this); 
+		LADFlag = true;
+	    }else{
+		lad = NULL;
+	 	LADFlag = false;
+	    }
+
 	}
 
 	//Pre solver utility functions

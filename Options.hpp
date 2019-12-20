@@ -29,11 +29,13 @@ class Options{
 	enum FDType {CD2, PADE6, PENTA10};
 	enum FilterType {COMPACT8, COMPACT10};
 
-	enum LESModel {NOMODEL, VREMAN, DSM};
+	enum LESModel {NOLESMODEL, VREMAN, DSM};
 
 	enum StatsAvgType {NONE, XI1_AVG, XI2_AVG, XI3_AVG, LOCAL, GLOBAL};
 
 	enum RKType {TVDRK3, RK4, KENRK4, LSLDDRK4};
+
+	enum LADModel {NOLADMODEL, KAWAI};
 
 	//Variable map...
 	po::variables_map vm;
@@ -110,6 +112,10 @@ class Options{
 	LESModel lesModel;
 	string lesModel_str;	
 
+	//LAD Stuff
+	string ladModel_str;
+	LADModel ladModel;
+
 	//DSM LES Model Stuff
 	bool dumpCoeffRange;
 	bool useTaukk;
@@ -179,7 +185,8 @@ class Options{
 	    ("LES.LESAVERAGING", po::value<string>(&musgsAvgType_str), "Averaging of mu_sgs type")
 	    ("LES.DSMTESTFILTER", po::value<int>(&testFilterType), "Type of test filter used in dynamic coefficient calculation")
 	    ("LES.DSMUSETAUKK", po::value<bool>(&useTaukk), "Whether or not to use taukk component in pressure calculation")
-	    ("LES.DSMCOEFFRANGE", po::value<bool>(&dumpCoeffRange), "Whether or not to dump the Smag. Coeff, CI, and Prt.");
+	    ("LES.DSMCOEFFRANGE", po::value<bool>(&dumpCoeffRange), "Whether or not to dump the Smag. Coeff, CI, and Prt.")
+	    ("LAD.LADMODEL",	 po::value<string>(&ladModel_str), "Name of the LAD model");
 
 	
 	    //Potentially include the style of computation options from CurvilinearCsolver? OCC vs. VANILLA etc.	
@@ -361,6 +368,9 @@ class Options{
 	checkValue<bool>("LES.DSMUSETAUKK", "useTaukk", useTaukk, true);
 	checkValue<bool>("LES.DSMCOEFFRANGE", "dumpCoeffRange", dumpCoeffRange, false);
 
+	//LAD model stuff
+	parseLADModelString("LAD.LADMODEL", ladModel_str, ladModel);
+
 
    }	
 
@@ -386,6 +396,7 @@ class Options{
 	}
     }
 
+    void parseLADModelString(string vmKey, string inString, LADModel &currentType);
     void parseLESModelString(string vmKey, string inString, LESModel &currentType);
     void parseStatsAvgTypeString(string vmKey, string inString, StatsAvgType &currentType);
     void parseFDTypeFromString(string vmKey, string inString, FDType &currentType);

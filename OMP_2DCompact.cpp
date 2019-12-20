@@ -156,6 +156,8 @@ int main(int argc, char *argv[]){
 
     bool fromRestart = opt->fromRestart;
     if(!fromRestart){
+
+	#pragma omp parallel for collapse(2)
         FOR_Y{
             FOR_X{
 

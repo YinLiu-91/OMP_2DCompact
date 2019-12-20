@@ -1,10 +1,29 @@
 #include "Options.hpp"
 
+void Options::parseLADModelString(string vmKey, string inString, LADModel &currentType){
+
+    if(vm.count(vmKey)){
+        if(strcmp(inString.c_str(), "NOLADMODEL")==0){
+            currentType = NOLADMODEL;
+        }else if(strcmp(inString.c_str(), "KAWAI")==0){
+            currentType = KAWAI;
+	}else{
+            cout << " > UNKNOWN LAD MODEL TYPE SPECIFIED: " << inString << endl;
+        }
+        cout << " > " << vmKey << " = " << inString << endl;
+    }else{
+        cout << " > " << vmKey << " = " << inString << " not specified " << endl;
+        abort();
+    }
+}
+
+
+
 void Options::parseLESModelString(string vmKey, string inString, LESModel &currentType){
 
     if(vm.count(vmKey)){
-        if(strcmp(inString.c_str(), "NOMODEL")==0){
-            currentType = NOMODEL;
+        if(strcmp(inString.c_str(), "NOLESMODEL")==0){
+            currentType = NOLESMODEL;
         }else if(strcmp(inString.c_str(), "VREMAN")==0){
             currentType = VREMAN;
         }else if(strcmp(inString.c_str(), "DSM")==0){

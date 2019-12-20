@@ -51,11 +51,11 @@ class LADKawai: public AbstractLAD{
 
     }
 
-    void calcVelocityTensorStuff(double *gradU[2][2]) = 0;
+    void calcVelocityTensorStuff(double *gradU[2][2]);
     void calc4thOrderDerivative(double *phi, double *d4phi0, double *d4phi1, double *work1, double *work2);
-    void calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
-    void calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
-    void calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
+    void calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE);
+    void calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE);
+    void calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE);
 
 };
 

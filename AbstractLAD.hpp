@@ -32,10 +32,10 @@ class AbstractLAD{
 
 	double *fsw;
 
-	virtual void calcVelocityTensorStuff(double *gradU[2][2]);
-	virtual void calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE);
-	virtual void calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE);
-	virtual void calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE);
+	virtual void calcVelocityTensorStuff(double *gradU[2][2]) = 0;
+	virtual void calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
+	virtual void calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
+	virtual void calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE) = 0;
 
 
 };

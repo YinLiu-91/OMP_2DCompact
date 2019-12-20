@@ -380,6 +380,17 @@ void CurvilinearCSolver::preStepDerivatives(){
 	}
     }
 */
+
+    //Going to do the locally added dissipation stuff here...
+    if(LADFlag){
+	if(opt->ladModel == Options::KAWAI){
+	    lad->calcVelocityTensorStuff(gradU);
+	    lad->calcLADViscosity(gradU, rhoP, rhoUP, rhoVP, rhoEP);
+	    lad->calcLADBeta(gradU, rhoP, rhoUP, rhoVP, rhoEP);
+	    lad->calcLADK(gradU, rhoP, rhoUP, rhoVP, rhoEP);
+	}
+    }
+
     double *viT2[] = {T};
     vector<double*> vecInT(viT2, viT2+sizeof(viT2)/sizeof(viT2[0]));
     
@@ -453,14 +464,22 @@ void CurvilinearCSolver::preStepDerivatives(){
 	    k_eff  = (ig->cp/ig->Pr)*mu[ip];
 //	}
 
+
+	if(LADFlag){
+	    //Should some clipping or limiting be done here?
+	    mu_eff += lad->mu_star[ip];
+	    k_eff  += lad->k_star[ip];
+	}
+
 	Tau11[ip] *= mu_eff;
 	Tau22[ip] *= mu_eff;
 	Tau12[ip] *= mu_eff;
 
-	//if Beta ~= 0, would need to add back in the bulk viscosity terms...
-	//Tau11[ip] += Beta*(dUdx + dVdy + dWdz);
-	//Tau22[ip] += Beta*(dUdx + dVdy + dWdz);
-	//Tau33[ip] += Beta*(dUdx + dVdy + dWdz);
+	//Adding back in the LAD bulk viscosity...
+	if(LADFlag){
+	    Tau11[ip] += lad->beta_star[ip]*(dUdx + dVdy);
+	    Tau22[ip] += lad->beta_star[ip]*(dUdx + dVdy);
+	}
 
 	//k_sgs = (ig->cp/Pr_t)*mu_sgs;
 

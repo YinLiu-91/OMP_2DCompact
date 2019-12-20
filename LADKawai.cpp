@@ -1,6 +1,8 @@
 #include "LADKawai.hpp"
 
 void LADKawai::calcVelocityTensorStuff(double *gradU[2][2]){
+
+    #pragma omp parallel for
     FOR_XY{
 	double S00, S01, S11;
 	S00 = gradU[0][0][ip];
@@ -35,6 +37,7 @@ void LADKawai::calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, 
     //compute the spacing component of the function
     double (*deltaComp)[2] = new double[Nx*Ny][2];
     
+    #pragma omp parallel for collapse(2)
     FOR_Y{
 	FOR_X{
 	    int ip = GET2DINDEX_XY;
@@ -87,7 +90,13 @@ void LADKawai::calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, 
 
     calc4thOrderDerivative(S, dFmu4dx04, dFmu4dx14, temp1, temp2);
 
+    getRange(S, "S", Nx, Ny);
+    getRange(dFmu4dx04, "dFmu4dx04", Nx, Ny);
+    getRange(dFmu4dx14, "dFmu4dx14", Nx, Ny);
+
     //Calculating the thing thats going to get filtered...
+    
+    #pragma omp parallel for
     FOR_XY{
 	temp1[ip] = rho[ip]*fabs(dFmu4dx04[ip]*deltaComp[ip][0] + dFmu4dx14[ip]*deltaComp[ip][1]);//Should be multiplied by the wall damping function...
     }
@@ -128,6 +137,8 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
 
     double *drhodx = new double[Nx*Ny];
     double *drhody = new double[Nx*Ny];
+
+    #pragma omp parallel for
     FOR_XY{
 	drhodx[ip] = cs->J11[ip]*drhod0[ip] + cs->J21[ip]*drhod1[ip];
 	drhody[ip] = cs->J12[ip]*drhod0[ip] + cs->J22[ip]*drhod1[ip];
@@ -147,6 +158,7 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
     double *dFbeta4dx14 = new double[Nx*Ny];
     calc4thOrderDerivative(dil, dFbeta4dx04, dFbeta4dx14, temp1, temp2);
 
+    #pragma omp parallel for
     FOR_XY{
 	double eps = 1E-16;
 	double ducros = (dil[ip]*dil[ip])/(dil[ip]*dil[ip] + vort[ip]*vort[ip] + eps);	
@@ -164,6 +176,7 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
     //compute the spacing component of the function
     double (*deltaComp)[2] = new double[Nx*Ny][2];
  
+    #pragma omp parallel for collapse(2)
     FOR_Y{
 	FOR_X{
 	    int ip = GET2DINDEX_XY;
@@ -214,6 +227,7 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
     }
 
     //calculating the whole thing thats getting filtered...
+    #pragma omp parallel for
     FOR_XY{
 	temp1[ip] = rho[ip]*fsw[ip]*(dFbeta4dx04[ip]*deltaComp[ip][0] + dFbeta4dx14[ip]*deltaComp[ip][1]); //may need to be multiplied by wall damping function
     }
@@ -225,6 +239,7 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
     filtY->filterField(temp1, temp2);
     transposeMatrix_Fast2(temp2, Ny, Nx, temp1, cs->opt->blocksize);
 
+    #pragma omp parallel for
     FOR_XY{
 	beta_star[ip] = C_beta*temp1[ip];
     }
@@ -246,6 +261,7 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
 
     //Calculate e, could probably just pull p from solver but with the inputs we'll just do it here...
     double *e = new double[Nx*Ny];
+    #pragma omp parallel for
     FOR_XY{
 	double U = rhoU[ip]/rho[ip];
 	double V = rhoV[ip]/rho[ip];
@@ -265,6 +281,7 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
 
     double *dedx = new double[Nx*Ny];
     double *dedy = new double[Nx*Ny];
+    #pragma omp parallel for
     FOR_XY{
 	dedx[ip] = cs->J11[ip]*ded0[ip] + cs->J21[ip]*ded1[ip];
 	dedy[ip] = cs->J12[ip]*ded0[ip] + cs->J22[ip]*ded1[ip];
@@ -287,6 +304,7 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
     //compute the spacing component of the function
     double (*deltaComp)[2] = new double[Nx*Ny][2];
  
+    #pragma omp parallel for collapse(2)
     FOR_Y{
 	FOR_X{
 	    int ip = GET2DINDEX_XY;
@@ -333,6 +351,7 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
     }
 
     //calculating the thing thats going to get filtered...
+    #pragma omp parallel for
     FOR_XY{
 	double U = rhoU[ip]/rho[ip];
 	double V = rhoV[ip]/rho[ip];
@@ -352,6 +371,7 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
     filtY->filterField(temp1, temp2);
     transposeMatrix_Fast2(temp2, Ny, Nx, temp1, cs->opt->blocksize);
 
+    #pragma omp parallel for
     FOR_XY{
 	k_star[ip] = C_k*temp1[ip];
     }
@@ -364,5 +384,9 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
     delete[] dFk4dx04;
     delete[] dFk4dx14;
     delete[] deltaComp;
+
+    getRange(mu_star,   "LAD->MU_STAR   ", Nx, Ny);
+    getRange(beta_star, "LAD->BETA_STAR ", Nx, Ny);
+    getRange(k_star,    "LAD->K_STAR    ", Nx, Ny);
 
 };

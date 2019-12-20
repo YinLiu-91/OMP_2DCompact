@@ -26,10 +26,11 @@ class AbstractLAD{
 	double *beta_star;
 	double *k_star;
 
-	double C_mu, C_k;
-	double *C_beta;
+	double C_mu, C_k, C_beta;
 
-	double *S, *dil;
+	double *S, *dil, *vort;
+
+	double *fsw;
 
 	virtual void calcVelocityTensorStuff(double *gradU[2][2]);
 	virtual void calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE);

@@ -66,6 +66,8 @@ class AbstractCSolver{
 	vector<double*> varData;
 
 	//Each Solver Class needs to have these functions to overwrite the pure virtual ones
+	virtual void computeGradient(vector<double*> vecIn, vector<double *>vecOut) = 0;
+
 	virtual void initializeSolverData() = 0;
 	virtual void setInitialConditions() = 0;
 	virtual void preStep() = 0;

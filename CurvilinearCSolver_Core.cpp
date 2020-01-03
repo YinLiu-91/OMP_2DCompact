@@ -94,6 +94,9 @@ void CurvilinearCSolver::initializeSolverData(){
     mu = new double[N];
     sos = new double[N];
 
+    mu_eff = new double[N];
+    k_eff  = new double[N];
+
     //84
 
     temp1 = new double[N]; tempVec.push_back(temp1);
@@ -436,7 +439,7 @@ void CurvilinearCSolver::preStepDerivatives(){
 
 	Tau12[ip] =  dUdy + dVdx;
 
-	double mu_eff = 0.0, k_eff = 0.0;
+	mu_eff[ip] = 0.0, k_eff[ip] = 0.0;
 /*
 	if(LESFlag){
 
@@ -460,20 +463,20 @@ void CurvilinearCSolver::preStepDerivatives(){
 
 	}else{
 */
-	    mu_eff = mu[ip];
-	    k_eff  = (ig->cp/ig->Pr)*mu[ip];
+	    mu_eff[ip] = mu[ip];
+	    k_eff[ip]  = (ig->cp/ig->Pr)*mu[ip];
 //	}
 
 
 	if(LADFlag){
 	    //Should some clipping or limiting be done here?
-	    mu_eff += lad->mu_star[ip];
-	    k_eff  += lad->k_star[ip];
+	    mu_eff[ip] += lad->mu_star[ip];
+	    k_eff[ip]  += lad->k_star[ip];
 	}
 
-	Tau11[ip] *= mu_eff;
-	Tau22[ip] *= mu_eff;
-	Tau12[ip] *= mu_eff;
+	Tau11[ip] *= mu_eff[ip];
+	Tau22[ip] *= mu_eff[ip];
+	Tau12[ip] *= mu_eff[ip];
 
 	//Adding back in the LAD bulk viscosity...
 	if(LADFlag){
@@ -484,8 +487,8 @@ void CurvilinearCSolver::preStepDerivatives(){
 	//k_sgs = (ig->cp/Pr_t)*mu_sgs;
 
 	//Thermal conduction terms
-	q_1 = k_eff*(J11[ip]*dT1[ip] + J21[ip]*dT2[ip]);
-	q_2 = k_eff*(J12[ip]*dT1[ip] + J22[ip]*dT2[ip]);
+	q_1 = k_eff[ip]*(J11[ip]*dT1[ip] + J21[ip]*dT2[ip]);
+	q_2 = k_eff[ip]*(J12[ip]*dT1[ip] + J22[ip]*dT2[ip]);
 
 	//Viscous work + thermal conduction terms
 	b_1 = U[ip]*Tau11[ip] + V[ip]*Tau12[ip] + q_1;
@@ -543,7 +546,8 @@ void CurvilinearCSolver::preStepDerivatives(){
     double *vi2[] = {preCont_1, preMom1_1, preMom2_1, preEngy_1, \
 		     preCont_2, preMom1_2, preMom2_2, preEngy_2};
     vector<double*> vecIn2(vi2, vi2+sizeof(vi2)/sizeof(vi2[0]));
-    
+
+ 
     double *vo2[] = {cont_1, mom1_1, mom2_1, engy_1, \
 		     cont_2, mom1_2, mom2_2, engy_2};
     vector<double*> vecOut2(vo2, vo2+sizeof(vo2)/sizeof(vo2[0]));
@@ -651,6 +655,7 @@ void CurvilinearCSolver::solveYMomentum(){
 	rhoVk2[ip] += -mom2_1[ip] -mom2_2[ip] + (spgSource+ymomRHSSource(ip))/J[ip];
         rhoVk2[ip] *= ts->dt*J[ip];
    }
+
 
 /*
     if(useTiming){
@@ -810,6 +815,7 @@ void CurvilinearCSolver::updateNonConservedData(){
 
 //    if(useTiming) ft1 = MPI_Wtime();
 
+
     if(!rkLast){
 
 	#pragma omp parallel for
@@ -838,6 +844,7 @@ void CurvilinearCSolver::updateNonConservedData(){
             Vcurv[ip] = J21[ip]*U[ip] + J22[ip]*V[ip];
 	}
     }
+
 
 
 /*

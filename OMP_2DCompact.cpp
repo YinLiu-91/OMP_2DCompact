@@ -163,14 +163,21 @@ int main(int argc, char *argv[]){
 
                 int ip = GET2DINDEX_XY;
 
-		double r2, pt;
+		double r2, pt, rt;
 		
-		r2 = (cs->msh->x[ip] - 2.0*M_PI)*(cs->msh->x[ip] - 2.0*M_PI) + (cs->msh->y[ip] - M_PI)*(cs->msh->y[ip] - M_PI); 
+//		r2 = (cs->msh->x[ip] - M_PI)*(cs->msh->x[ip] - M_PI) + (cs->msh->y[ip] - M_PI)*(cs->msh->y[ip] - M_PI); 
+//		r2 = (cs->msh->x[ip] - M_PI)*(cs->msh->x[ip] - M_PI); 
 
-		pt = 0.0*exp(-r2/0.1);
+		if(cs->msh->x[ip] > 0.0*M_PI && cs->msh->x[ip] < 1.0*M_PI){
+		    pt = 1.0;
+		    rt = 1.0;
+		}else{
+		    pt = 0.125;
+		    rt = 0.1;
+		}
 
-                cs->rho0[ip] = 1.0;
-                cs->p0[ip]   = (pt +1.0)/cs->ig->gamma;
+                cs->rho0[ip] = rt;
+                cs->p0[ip]   = pt/cs->ig->gamma;
                 cs->U0[ip]   = 0.0;
                 cs->V0[ip]   = 0.0;
             }
@@ -251,7 +258,19 @@ int main(int argc, char *argv[]){
 
     CurvilinearCSolver *cs_downcast = static_cast<CurvilinearCSolver*>(cs);
 
-    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->p, "P", 0.9975*(1.0/1.4), 1.0025*(1.0/1.4), PngWriter::BWR));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->p, "P", PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->rho2, "RHO", PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->U, "U", PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->mu_star,   "MUS",   PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->beta_star, "BETAS", PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->k_star,    "KS",    PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->fsw,    "FSW",    PngWriter::GREYSCALE));
+//    cs_downcast->addImageOutput(new PngWriter(1, 1024, 1024, cs_downcast->lad->dFbeta4dx04,    "dFbeta0",    PngWriter::GREYSCALE));
+//    cs_downcast->addImageOutput(new PngWriter(1, 1024, 1024, cs_downcast->lad->dFbeta4dx14,    "dFbeta1",    PngWriter::GREYSCALE));
+//    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->dFmu4dx04,    "dFmu0",    PngWriter::GREYSCALE));
+//    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->dFmu4dx14,    "dFmu1",    PngWriter::GREYSCALE));
+//    cs_downcast->addImageOutput(new PngWriter(1, 1024, 1024, cs_downcast->preMom2_2, "premom22_O0",    PngWriter::GREYSCALE));
+
 
     ////////////////////////////////////////
     //Execute the solver timestepping loop//
@@ -275,16 +294,17 @@ double CurvilinearCSolver::contRHSSource(int ip){
 double CurvilinearCSolver::xmomRHSSource(int ip){return 0.0;};
 double CurvilinearCSolver::ymomRHSSource(int ip){
 
+/*
 	double x = msh->x[ip];
 	double y = msh->y[ip];
 
 	double r2 = (x - 3.0*M_PI)*(x - 3.0*M_PI) + (y - 2.0*M_PI)*(y - 2.0*M_PI);
-	double pt = 250.*exp(-r2/0.00005);
+	double pt = 250.*exp(-r2/0.005);
 
 	double p_source;
         p_source = sin(4.0*time)*pt; 	
-
-
+*/
+	double p_source = 0.0;
 
 	return p_source;
 };

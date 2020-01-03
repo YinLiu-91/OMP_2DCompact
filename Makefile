@@ -1,7 +1,7 @@
 
 include Makefile.in
 
-OBJECTS  = OMP_2DCompact.o AbstractSingleBlockMesh.cpp Utils.o Pade6.o Compact10Filter.o WideGaussianFilter.o Options.o CurvilinearCSolver_Core.o CurvilinearCSolver_BC.o LADKawai.o SpongeBC.o CurvilinearInterpolator.o
+OBJECTS  = OMP_2DCompact.o AbstractSingleBlockMesh.cpp Utils.o Pade6.o Explicit4thOrder.o Compact10Filter.o WideGaussianFilter.o Options.o CurvilinearCSolver_Core.o CurvilinearCSolver_BC.o LADKawai.o SpongeBC.o CurvilinearInterpolator.o
 #POSTPROOBJ = Utils.o Derivatives.o PostProcess.o VisitWriter.o
 
 all: OMP_2DCOMPACT.exe
@@ -23,6 +23,11 @@ AbstractSingleBlockMesh.o: AbstractSingleBlockMesh.cpp AbstractSingleBlockMesh.h
 
 Pade6.o: Pade6.cpp Pade6.hpp AbstractDerivatives.hpp Domain.hpp BC.hpp Utils.hpp Macros.hpp Options.hpp 
 	$(CC) $(CFLAGS) -c $< 
+
+Explicit4thOrder.o: Explicit4thOrder.cpp Explicit4thOrder.hpp AbstractDerivatives.hpp Domain.hpp BC.hpp Utils.hpp Macros.hpp Options.hpp 
+	$(CC) $(CFLAGS) -c $< 
+
+
 
 LADKawai.o: LADKawai.cpp LADKawai.hpp AbstractLAD.hpp AbstractDerivatives.hpp AbstractFilter.hpp Options.hpp Macros.hpp Utils.hpp WideGaussianFilter.hpp Pade6.hpp
 	$(CC) $(CFLAGS) -c $< 

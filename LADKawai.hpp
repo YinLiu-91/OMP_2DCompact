@@ -8,7 +8,7 @@
 #include "AbstractFilter.hpp"
 #include "AbstractDerivatives.hpp"
 #include "WideGaussianFilter.hpp"
-#include "Pade6.hpp"
+#include "Explicit4thOrder.hpp"
 
 //Locally-Added Dissipation methods of Kawai, Shankar, & Lele (2010)
 
@@ -41,13 +41,20 @@ class LADKawai: public AbstractLAD{
 	//shock sensor...
 	fsw = new double[N];
 
+	dFbeta4dx04 = new double[N];
+	dFbeta4dx14 = new double[N];
+	dFmu4dx04 = new double[N];
+	dFmu4dx14 = new double[N];
+
+	viz = new double[N];
+	
 	//Our wide gaussian filter...
 	filtX = new WideGaussianFilter(cs->dom, cs->bc, cs->bc->bcXType, AbstractDerivatives::DIRX);
 	filtY = new WideGaussianFilter(cs->dom, cs->bc, cs->bc->bcYType, AbstractDerivatives::DIRY);
 
 	//For now just use whatever the solver is using
-	derivX = cs->derivX;
-	derivY = cs->derivY;
+	derivX = new Explicit4thOrder(cs->dom, cs->bc->bcXType, AbstractDerivatives::DIRX);
+	derivY = new Explicit4thOrder(cs->dom, cs->bc->bcYType, AbstractDerivatives::DIRY);
 
     }
 

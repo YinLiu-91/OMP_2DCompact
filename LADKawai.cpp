@@ -4,12 +4,14 @@ void LADKawai::calcVelocityTensorStuff(double *gradU[2][2]){
 
     #pragma omp parallel for
     FOR_XY{
+
 	double S00, S01, S11;
 	S00 = gradU[0][0][ip];
 	S11 = gradU[1][1][ip];
 	S01 = 0.5*(gradU[0][1][ip] + gradU[1][0][ip]);
-	S[ip] = sqrt(2*S00*S00 + 2*S11*S11 + 4*S01);
+	S[ip] = sqrt(2*S00*S00 + 2*S11*S11 + 4*S01*S01);
 
+	
 	dil[ip] = S00 + S11;
 
 	vort[ip] = gradU[1][0][ip] - gradU[0][1][ip];
@@ -18,18 +20,14 @@ void LADKawai::calcVelocityTensorStuff(double *gradU[2][2]){
 
 void LADKawai::calc4thOrderDerivative(double *phi, double *d4phi0, double *d4phi1, double *work1, double *work2){
 
-    derivX->calc1stDerivField(phi,   work1);
-    derivX->calc1stDerivField(work1, work2);
-    derivX->calc1stDerivField(work2, work1);
-    derivX->calc1stDerivField(work1, d4phi0);
+   derivX->calc1stDerivField(phi, d4phi0); 
 
-    transposeMatrix_Fast2(phi, Nx, Ny, d4phi1, cs->opt->blocksize);
-    derivY->calc1stDerivField(d4phi1, work1);
-    derivY->calc1stDerivField(work1,  work2);
-    derivY->calc1stDerivField(work2,  work1);
-    derivY->calc1stDerivField(work1,  work2);
-    transposeMatrix_Fast2(work2, Ny, Nx, d4phi1, cs->opt->blocksize);
- 
+   transposeMatrix_Fast2(phi, Nx, Ny, work1, cs->opt->blocksize);
+
+   derivY->calc1stDerivField(work1, work2); 
+
+   transposeMatrix_Fast2(work2, Ny, Nx, d4phi1, cs->opt->blocksize);
+
 }
 
 void LADKawai::calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, double *rhoV, double *rhoE){
@@ -45,27 +43,45 @@ void LADKawai::calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, 
 	    double delta_xl[2][2]; 
 	    double delta2_l_mu[2];
 
-	    if(i == 0){
-	        delta_xl[0][0] = cs->msh->x[i+1]-cs->msh->x[i];
-	        delta_xl[0][1] = cs->msh->y[i+1]-cs->msh->y[i];
-	    }else if(Nx-1){
-		delta_xl[0][0] = cs->msh->x[Nx-1]-cs->msh->x[Nx-2];
-		delta_xl[0][1] = cs->msh->y[Nx-1]-cs->msh->y[Nx-2];
+	    if(derivX->bcType == Options::DIRICHLET_SOLVE){
+	        if(i == 0){
+	            delta_xl[0][0] = cs->msh->x[ip+1]-cs->msh->x[ip];
+	            delta_xl[0][1] = cs->msh->y[ip+1]-cs->msh->y[ip];
+	        }else if(i == Nx-1){
+		    delta_xl[0][0] = cs->msh->x[ip]-cs->msh->x[ip-1];
+		    delta_xl[0][1] = cs->msh->y[ip]-cs->msh->y[ip-1];
+	        }else{
+		    delta_xl[0][0] = 0.5*(cs->msh->x[ip+1]-cs->msh->x[ip-1]);
+		    delta_xl[0][1] = 0.5*(cs->msh->y[ip+1]-cs->msh->y[ip-1]);
+	        }
 	    }else{
-		delta_xl[0][0] = 0.5*(cs->msh->x[i+1]-cs->msh->x[i-1]);
-		delta_xl[0][1] = 0.5*(cs->msh->y[i+1]-cs->msh->y[i-1]);
+		//TODO, this is going to technically be wrong
+		//Need to actually do the coordinate tranformation stuff from the mesh
+	        if(i == 0){
+	            delta_xl[0][0] = cs->msh->x[ip+1]-cs->msh->x[ip];
+	            delta_xl[0][1] = cs->msh->y[ip+1]-cs->msh->y[ip];
+	        }else if(i == Nx-1){
+		    delta_xl[0][0] = cs->msh->x[ip]-cs->msh->x[ip-1];
+		    delta_xl[0][1] = cs->msh->y[ip]-cs->msh->y[ip-1];
+	        }else{
+		    delta_xl[0][0] = 0.5*(cs->msh->x[ip+1]-cs->msh->x[ip-1]);
+		    delta_xl[0][1] = 0.5*(cs->msh->y[ip+1]-cs->msh->y[ip-1]);
+	        }
 	    }
 
 	    if(j == 0){
-	        delta_xl[1][0] = cs->msh->x[j+1]-cs->msh->x[j];
-	        delta_xl[1][1] = cs->msh->y[j+1]-cs->msh->y[j];
-	    }else if(Ny-1){
-		delta_xl[1][0] = cs->msh->x[Ny-1]-cs->msh->x[Ny-2];
-		delta_xl[1][1] = cs->msh->y[Ny-1]-cs->msh->y[Ny-2];
+	        delta_xl[1][0] = cs->msh->x[(j+1)*Nx+i]-cs->msh->x[ip];
+	        delta_xl[1][1] = cs->msh->y[(j+1)*Nx+i]-cs->msh->y[ip];
+	    }else if(j == Ny-1){
+		delta_xl[1][0] = cs->msh->x[ip]-cs->msh->x[(j-1)*Nx+i];
+		delta_xl[1][1] = cs->msh->y[ip]-cs->msh->y[(j-1)*Nx+i];
 	    }else{
-		delta_xl[1][0] = 0.5*(cs->msh->x[j+1]-cs->msh->x[j-1]);
-		delta_xl[1][1] = 0.5*(cs->msh->y[j+1]-cs->msh->y[j-1]);
+		delta_xl[1][0] = 0.5*(cs->msh->x[(j+1)*Nx+i]-cs->msh->x[(j-1)*Nx+i]);
+		delta_xl[1][1] = 0.5*(cs->msh->y[(j+1)*Nx+i]-cs->msh->y[(j-1)*Nx+i]);
 	    }
+
+
+
 
 	    delta2_l_mu[0] = (delta_xl[0][0]*delta_xl[0][0] + delta_xl[0][1]*delta_xl[0][1]); 
 	    delta2_l_mu[1] = (delta_xl[1][0]*delta_xl[1][0] + delta_xl[1][1]*delta_xl[1][1]); 
@@ -79,20 +95,21 @@ void LADKawai::calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, 
 	    //Doing r=4
 	    deltaComp[ip][0] = pow(dxi[0],4.0)*delta2_l_mu[0];
 	    deltaComp[ip][1] = pow(dxi[1],4.0)*delta2_l_mu[1];
+
 	}
     }
 
     //Doing the derivative four times for now, need to implement just explicit...
     double *temp1 = new double[Nx*Ny];  
     double *temp2 = new double[Nx*Ny];  
-    double *dFmu4dx04 = new double[Nx*Ny];
-    double *dFmu4dx14 = new double[Nx*Ny];
+//    double *dFmu4dx04 = new double[Nx*Ny];
+//    double *dFmu4dx14 = new double[Nx*Ny];
 
     calc4thOrderDerivative(S, dFmu4dx04, dFmu4dx14, temp1, temp2);
 
-    getRange(S, "S", Nx, Ny);
-    getRange(dFmu4dx04, "dFmu4dx04", Nx, Ny);
-    getRange(dFmu4dx14, "dFmu4dx14", Nx, Ny);
+    //getRange(S, "S", Nx, Ny);
+    //getRange(dFmu4dx04, "dFmu4dx04", Nx, Ny);
+    //getRange(dFmu4dx14, "dFmu4dx14", Nx, Ny);
 
     //Calculating the thing thats going to get filtered...
     
@@ -114,8 +131,8 @@ void LADKawai::calcLADViscosity(double *gradU[2][2], double *rho, double *rhoU, 
 
     delete[] temp1;
     delete[] temp2;
-    delete[] dFmu4dx04;
-    delete[] dFmu4dx14;
+//    delete[] dFmu4dx04;
+//    delete[] dFmu4dx14;
     delete[] (deltaComp);
 
 }
@@ -144,9 +161,14 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
 	drhody[ip] = cs->J12[ip]*drhod0[ip] + cs->J22[ip]*drhod1[ip];
 	
 	double drhomag = sqrt(drhodx[ip]*drhodx[ip] + drhody[ip]*drhody[ip]);
-	drhodx[ip] /= drhomag;
-	drhody[ip] /= drhomag;
+	drhodx[ip] /= drhomag + 1E-12;
+	drhody[ip] /= drhomag + 1E-12;
+
     } 
+
+    FOR_XY{
+        viz[ip] = fabs(drhody[ip]) + fabs(drhodx[ip]);
+    }
 
     delete[] drhod0;
     delete[] drhod1;
@@ -154,12 +176,15 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
     //computing the dilatation and shock sensor...
     double *temp1	= new double[Nx*Ny];
     double *temp2	= new double[Nx*Ny];
-    double *dFbeta4dx04 = new double[Nx*Ny];
-    double *dFbeta4dx14 = new double[Nx*Ny];
+    //double *dFbeta4dx04 = new double[Nx*Ny];
+    //double *dFbeta4dx14 = new double[Nx*Ny];
     calc4thOrderDerivative(dil, dFbeta4dx04, dFbeta4dx14, temp1, temp2);
 
     #pragma omp parallel for
     FOR_XY{
+
+//	cout << ip << " " << dFbeta4dx04[ip] << " " << dFbeta4dx14[ip] << endl;
+
 	double eps = 1E-16;
 	double ducros = (dil[ip]*dil[ip])/(dil[ip]*dil[ip] + vort[ip]*vort[ip] + eps);	
 	
@@ -185,25 +210,25 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
 	    double delta2_l_beta[2];
 
 	    if(i == 0){
-	        delta_xl[0][0] = cs->msh->x[i+1]-cs->msh->x[i];
-	        delta_xl[0][1] = cs->msh->y[i+1]-cs->msh->y[i];
-	    }else if(Nx-1){
-		delta_xl[0][0] = cs->msh->x[Nx-1]-cs->msh->x[Nx-2];
-		delta_xl[0][1] = cs->msh->y[Nx-1]-cs->msh->y[Nx-2];
+	        delta_xl[0][0] = cs->msh->x[ip+1]-cs->msh->x[ip];
+	        delta_xl[0][1] = cs->msh->y[ip+1]-cs->msh->y[ip];
+	    }else if(i == Nx-1){
+		delta_xl[0][0] = cs->msh->x[ip]-cs->msh->x[ip-1];
+		delta_xl[0][1] = cs->msh->y[ip]-cs->msh->y[ip-1];
 	    }else{
-		delta_xl[0][0] = 0.5*(cs->msh->x[i+1]-cs->msh->x[i-1]);
-		delta_xl[0][1] = 0.5*(cs->msh->y[i+1]-cs->msh->y[i-1]);
+		delta_xl[0][0] = 0.5*(cs->msh->x[ip+1]-cs->msh->x[ip-1]);
+		delta_xl[0][1] = 0.5*(cs->msh->y[ip+1]-cs->msh->y[ip-1]);
 	    }
 
 	    if(j == 0){
-	        delta_xl[1][0] = cs->msh->x[j+1]-cs->msh->x[j];
-	        delta_xl[1][1] = cs->msh->y[j+1]-cs->msh->y[j];
-	    }else if(Ny-1){
-		delta_xl[1][0] = cs->msh->x[Ny-1]-cs->msh->x[Ny-2];
-		delta_xl[1][1] = cs->msh->y[Ny-1]-cs->msh->y[Ny-2];
+	        delta_xl[1][0] = cs->msh->x[(j+1)*Nx+i]-cs->msh->x[ip];
+	        delta_xl[1][1] = cs->msh->y[(j+1)*Nx+i]-cs->msh->y[ip];
+	    }else if(j == Ny-1){
+		delta_xl[1][0] = cs->msh->x[ip]-cs->msh->x[(j-1)*Nx+i];
+		delta_xl[1][1] = cs->msh->y[ip]-cs->msh->y[(j-1)*Nx+i];
 	    }else{
-		delta_xl[1][0] = 0.5*(cs->msh->x[j+1]-cs->msh->x[j-1]);
-		delta_xl[1][1] = 0.5*(cs->msh->y[j+1]-cs->msh->y[j-1]);
+		delta_xl[1][0] = 0.5*(cs->msh->x[(j+1)*Nx+i]-cs->msh->x[(j-1)*Nx+i]);
+		delta_xl[1][1] = 0.5*(cs->msh->y[(j+1)*Nx+i]-cs->msh->y[(j-1)*Nx+i]);
 	    }
 
 	    delta2_l_beta[0] = delta_xl[0][0]*drhodx[ip] + delta_xl[0][1]*drhody[ip]; 
@@ -226,11 +251,27 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
 	}
     }
 
+    double *deltaComp0 = new double[Nx*Ny];
+    double *deltaComp1 = new double[Nx*Ny];
+
+    FOR_XY{
+	deltaComp0[ip] = deltaComp[ip][0];
+	deltaComp1[ip] = deltaComp[ip][1];
+    }
+
+    //getRange(dFbeta4dx04, "dFbeta4dx04", Nx, Ny); 
+    //getRange(dFbeta4dx14, "dFbeta4dx14", Nx, Ny); 
+
     //calculating the whole thing thats getting filtered...
     #pragma omp parallel for
     FOR_XY{
-	temp1[ip] = rho[ip]*fsw[ip]*(dFbeta4dx04[ip]*deltaComp[ip][0] + dFbeta4dx14[ip]*deltaComp[ip][1]); //may need to be multiplied by wall damping function
+	temp1[ip] = rho[ip]*fsw[ip]*fabs(dFbeta4dx04[ip]*deltaComp[ip][0] + dFbeta4dx14[ip]*deltaComp[ip][1]); //may need to be multiplied by wall damping function
     }
+
+
+    delete[] deltaComp0;
+    delete[] deltaComp1;
+
 
     //Filter in both direcitons
     filtX->filterField(temp1, temp2);
@@ -245,11 +286,18 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
     }
 
 
+    int fsw_count = 0;
+    FOR_XY{
+	if(fsw_count > 0.1){
+	    fsw_count++;
+	}
+    }
+    cout << "Detected shocks at " << fsw_count << " nodes." << endl;
 
     delete[] temp1;
     delete[] temp2;
-    delete[] dFbeta4dx04;
-    delete[] dFbeta4dx14;
+    //delete[] dFbeta4dx04;
+    //delete[] dFbeta4dx14;
     delete[] drhodx;
     delete[] drhody;
     delete[] deltaComp;
@@ -287,8 +335,8 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
 	dedy[ip] = cs->J12[ip]*ded0[ip] + cs->J22[ip]*ded1[ip];
 	
 	double demag = sqrt(dedx[ip]*dedx[ip] + dedy[ip]*dedy[ip]);
-	dedx[ip] /= demag;
-	dedy[ip] /= demag;
+	dedx[ip] /= demag + 1E-12;
+	dedy[ip] /= demag + 1E-12;
     } 
 
     delete[] ded0;
@@ -313,25 +361,25 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
 	    double delta_l_k[2];
 
 	    if(i == 0){
-	        delta_xl[0][0] = cs->msh->x[i+1]-cs->msh->x[i];
-	        delta_xl[0][1] = cs->msh->y[i+1]-cs->msh->y[i];
-	    }else if(Nx-1){
-		delta_xl[0][0] = cs->msh->x[Nx-1]-cs->msh->x[Nx-2];
-		delta_xl[0][1] = cs->msh->y[Nx-1]-cs->msh->y[Nx-2];
+	        delta_xl[0][0] = cs->msh->x[ip+1]-cs->msh->x[ip];
+	        delta_xl[0][1] = cs->msh->y[ip+1]-cs->msh->y[ip];
+	    }else if(i == Nx-1){
+		delta_xl[0][0] = cs->msh->x[ip]-cs->msh->x[ip-1];
+		delta_xl[0][1] = cs->msh->y[ip]-cs->msh->y[ip-1];
 	    }else{
-		delta_xl[0][0] = 0.5*(cs->msh->x[i+1]-cs->msh->x[i-1]);
-		delta_xl[0][1] = 0.5*(cs->msh->y[i+1]-cs->msh->y[i-1]);
+		delta_xl[0][0] = 0.5*(cs->msh->x[ip+1]-cs->msh->x[ip-1]);
+		delta_xl[0][1] = 0.5*(cs->msh->y[ip+1]-cs->msh->y[ip-1]);
 	    }
 
 	    if(j == 0){
-	        delta_xl[1][0] = cs->msh->x[j+1]-cs->msh->x[j];
-	        delta_xl[1][1] = cs->msh->y[j+1]-cs->msh->y[j];
-	    }else if(Ny-1){
-		delta_xl[1][0] = cs->msh->x[Ny-1]-cs->msh->x[Ny-2];
-		delta_xl[1][1] = cs->msh->y[Ny-1]-cs->msh->y[Ny-2];
+	        delta_xl[1][0] = cs->msh->x[(j+1)*Nx+i]-cs->msh->x[ip];
+	        delta_xl[1][1] = cs->msh->y[(j+1)*Nx+i]-cs->msh->y[ip];
+	    }else if(j == Ny-1){
+		delta_xl[1][0] = cs->msh->x[ip]-cs->msh->x[(j-1)*Nx+i];
+		delta_xl[1][1] = cs->msh->y[ip]-cs->msh->y[(j-1)*Nx+i];
 	    }else{
-		delta_xl[1][0] = 0.5*(cs->msh->x[j+1]-cs->msh->x[j-1]);
-		delta_xl[1][1] = 0.5*(cs->msh->y[j+1]-cs->msh->y[j-1]);
+		delta_xl[1][0] = 0.5*(cs->msh->x[(j+1)*Nx+i]-cs->msh->x[(j-1)*Nx+i]);
+		delta_xl[1][1] = 0.5*(cs->msh->y[(j+1)*Nx+i]-cs->msh->y[(j-1)*Nx+i]);
 	    }
 
 	    delta_l_k[0] = fabs(delta_xl[0][0]*dedx[ip] + delta_xl[0][1]*dedy[ip]); 
@@ -360,7 +408,7 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
 	double c = cs->ig->solveSOS(rho[ip], p);
 	double T = cs->ig->solveT(rho[ip], p);
 
-	temp1[ip] = (rho[ip]*c/T)*(dFk4dx04[ip]*deltaComp[ip][0] + dFk4dx14[ip]*deltaComp[ip][1]);
+	temp1[ip] = (rho[ip]*c/T)*fabs(dFk4dx04[ip]*deltaComp[ip][0] + dFk4dx14[ip]*deltaComp[ip][1]);
 	  
     }
 

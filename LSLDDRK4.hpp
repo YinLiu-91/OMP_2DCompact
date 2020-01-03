@@ -104,6 +104,7 @@ void LSLDDRK4::updateConservedDataStep1(){
             }
 
     }else if(cs->rkStep == 2){
+
 	    #pragma omp parallel for
             FOR_XY{
                 cs->rho1[ip]  = cs->rhok2[ip]  + a2_1*cs->rho1[ip]; 

@@ -52,6 +52,8 @@ class CurvilinearCSolver: public AbstractCSolver{
 	       *mu,
 	      *sos;
 
+	double *mu_eff, *k_eff;
+
 	//derivatives of data
 	double *dU1, *dU2;
 	double *dV1, *dV2;

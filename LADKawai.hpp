@@ -24,9 +24,9 @@ class LADKawai: public AbstractLAD{
 	this->N  = Nx*Ny;
 
 	//final outputs to the solver
-	mu_star   = new double[N];
-	beta_star = new double[N];
-	k_star    = new double[N];
+	mu_star   = new double[N]{0.0};
+	beta_star = new double[N]{0.0};
+	k_star    = new double[N]{0.0};
 
 	//scalar values pertaining to the velocity tensor
 	S    = new double[N];

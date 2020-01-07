@@ -168,27 +168,52 @@ void CurvilinearCSolver::calcDtFromCFL(){
 	double delta = sqrt(dx*dy);
 
 	//calculating the inviscid characteristic
-	double UChar_dx = fabs(U[ip])/dx + fabs(V[ip])/dy + sos[ip]*sqrt((1.0/(dx*dx)) + (1.0/(dy*dy)));
+	double UChar_dx = (fabs(U[ip])/dx + fabs(V[ip])/dy + sos[ip]*sqrt((1.0/(dx*dx)) + (1.0/(dy*dy))));
 	if(UChar_dx < lmax_UChar_dx){
 	    lmax_UChar_dx = UChar_dx;
 	}
+    }
 
-	double muchar, betachar, kappachar;
-	if(LADFlag){
+
+    double max_UChar_dx = lmax_UChar_dx;
+
+    if(LADFlag){
+        #pragma omp parallel for reduction(min:max_UChar_dx)
+	FOR_XY{
+	    //getting the local spacings
+	    double dx = dom->dx/J11[ip];	//Are these complete? Assumes orthogonal grid
+	    double dy = dom->dy/J22[ip];	
+	    double delta = sqrt(dx*dy);
+
+
+
+	    double muchar, betachar, kappachar;
 	    double mu_eff   = mu[ip] + lad->mu_star[ip];
 	    double beta_eff = lad->beta_star[ip];
 	    double k_eff = (ig->cp/ig->Pr)*mu[ip] + lad->k_star[ip]; 
 
-	    muchar    = rho1[ip]*delta*delta/mu_eff; 
-	    betachar  = rho1[ip]*delta*delta/beta_eff;
-	    kappachar = rho1[ip]*sos[ip]*sos[ip]*delta*delta/(k_eff*T[ip]);
+	    //The 0.2 is added in (Cook, 2007)
+	    muchar    = 0.2*rho1[ip]*delta*delta/mu_eff; 
+	    betachar  = 0.2*rho1[ip]*delta*delta/beta_eff;
+	    kappachar = 0.2*rho1[ip]*sos[ip]*sos[ip]*delta*delta/(k_eff*T[ip]);
 
-	    //TODO finish this up... 
+	    //We want the minimum possible of these
+	    if(muchar < max_UChar_dx){
+		max_UChar_dx = muchar;
+	    }
+
+	    if(betachar < max_UChar_dx){
+		max_UChar_dx = betachar;
+	    }
+
+	    if(kappachar < max_UChar_dx){
+		max_UChar_dx = betachar;
+	    }
+
 	}
 
     }
     
-    double max_UChar_dx = 1.0/lmax_UChar_dx;
 
     if(ts->timeSteppingType==Options::CONST_CFL){
 	ts->dt = ts->CFL*max_UChar_dx;

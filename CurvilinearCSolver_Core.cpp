@@ -152,32 +152,48 @@ void CurvilinearCSolver::calcDtFromCFL(){
 //    if(useTiming) ft1 = MPI_Wtime();    
 
     //Calculate the wave speed over the local spacings...
-    double *UChar_dx;
-    UChar_dx = new double[N];
-
-    #pragma omp parallel for
-    FOR_XY{
-	UChar_dx[ip] = J11[ip]*(fabs(U[ip]) + sos[ip])/dom->dx + J22[ip]*(fabs(V[ip])+sos[ip])/dom->dy;
-    }
+   // double *UChar_dx, *muchar, *betachar, *kappachar, *delta;
+   // muchar = new double[N];
+   // betachar = new double[N];
+   // kappachar = new double[N];
 
     //Get the largest value in the domain
-    double lmax_UChar_dx = -100000.0;
-    #pragma omp parallel for reduction(max:lmax_UChar_dx)
+    double lmax_UChar_dx = 100000000.0;
+    #pragma omp parallel for reduction(min:lmax_UChar_dx)
     FOR_XY{
-	if(UChar_dx[ip] > lmax_UChar_dx){
-	    lmax_UChar_dx = UChar_dx[ip];
+
+	//getting the local spacings
+	double dx = dom->dx/J11[ip];	//Are these complete? Assumes orthogonal grid
+	double dy = dom->dy/J22[ip];	
+	double delta = sqrt(dx*dy);
+
+	//calculating the inviscid characteristic
+	double UChar_dx = fabs(U[ip])/dx + fabs(V[ip])/dy + sos[ip]*sqrt((1.0/(dx*dx)) + (1.0/(dy*dy)));
+	if(UChar_dx < lmax_UChar_dx){
+	    lmax_UChar_dx = UChar_dx;
 	}
+
+	double muchar, betachar, kappachar;
+	if(LADFlag){
+	    double mu_eff   = mu[ip] + lad->mu_star[ip];
+	    double beta_eff = lad->beta_star[ip];
+	    double k_eff = (ig->cp/ig->Pr)*mu[ip] + lad->k_star[ip]; 
+
+	    muchar    = rho1[ip]*delta*delta/mu_eff; 
+	    betachar  = rho1[ip]*delta*delta/beta_eff;
+	    kappachar = rho1[ip]*sos[ip]*sos[ip]*delta*delta/(k_eff*T[ip]);
+
+	    //TODO finish this up... 
+	}
+
     }
     
-    double max_UChar_dx = lmax_UChar_dx;
-
-    //done with UChar_dx
-    delete[] UChar_dx;
+    double max_UChar_dx = 1.0/lmax_UChar_dx;
 
     if(ts->timeSteppingType==Options::CONST_CFL){
-	ts->dt = ts->CFL/max_UChar_dx;
+	ts->dt = ts->CFL*max_UChar_dx;
     }else if(ts->timeSteppingType==Options::CONST_DT){
-	ts->CFL = ts->dt*max_UChar_dx;
+	ts->CFL = ts->dt/max_UChar_dx;
     }
   
     if(timeStep == opt->timeStep){

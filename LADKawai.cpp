@@ -292,7 +292,7 @@ void LADKawai::calcLADBeta(double *gradU[2][2], double *rho, double *rhoU, doubl
 	    fsw_count++;
 	}
     }
-    cout << "Detected shocks at " << fsw_count << " nodes." << endl;
+//    cout << "Detected shocks at " << fsw_count << " nodes." << endl;
 
     delete[] temp1;
     delete[] temp2;
@@ -433,8 +433,8 @@ void LADKawai::calcLADK(double *gradU[2][2], double *rho, double *rhoU, double *
     delete[] dFk4dx14;
     delete[] deltaComp;
 
-    getRange(mu_star,   "LAD->MU_STAR   ", Nx, Ny);
-    getRange(beta_star, "LAD->BETA_STAR ", Nx, Ny);
-    getRange(k_star,    "LAD->K_STAR    ", Nx, Ny);
+//    getRange(mu_star,   "LAD->MU_STAR   ", Nx, Ny);
+//    getRange(beta_star, "LAD->BETA_STAR ", Nx, Ny);
+//    getRange(k_star,    "LAD->K_STAR    ", Nx, Ny);
 
 };

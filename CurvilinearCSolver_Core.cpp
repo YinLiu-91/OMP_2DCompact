@@ -152,14 +152,10 @@ void CurvilinearCSolver::calcDtFromCFL(){
 //    if(useTiming) ft1 = MPI_Wtime();    
 
     //Calculate the wave speed over the local spacings...
-   // double *UChar_dx, *muchar, *betachar, *kappachar, *delta;
-   // muchar = new double[N];
-   // betachar = new double[N];
-   // kappachar = new double[N];
 
     //Get the largest value in the domain
-    double lmax_UChar_dx = 100000000.0;
-    #pragma omp parallel for reduction(min:lmax_UChar_dx)
+    double lmin_dt = 100000000.0;
+    #pragma omp parallel for reduction(min:lmin_dt)
     FOR_XY{
 
 	//getting the local spacings
@@ -168,28 +164,15 @@ void CurvilinearCSolver::calcDtFromCFL(){
 	double delta = sqrt(dx*dy);
 
 	//calculating the inviscid characteristic
-	double UChar_dx = (fabs(U[ip])/dx + fabs(V[ip])/dy + sos[ip]*sqrt((1.0/(dx*dx)) + (1.0/(dy*dy))));
-	if(UChar_dx < lmax_UChar_dx){
-	    lmax_UChar_dx = UChar_dx;
+	double UChar_dx = 1.0/((fabs(U[ip])/dx + fabs(V[ip])/dy + sos[ip]*sqrt((1.0/(dx*dx)) + (1.0/(dy*dy)))));
+	if(UChar_dx < lmin_dt){
+	    lmin_dt = UChar_dx;
 	}
-    }
 
-
-    double max_UChar_dx = lmax_UChar_dx;
-
-    if(LADFlag){
-        #pragma omp parallel for reduction(min:max_UChar_dx)
-	FOR_XY{
-	    //getting the local spacings
-	    double dx = dom->dx/J11[ip];	//Are these complete? Assumes orthogonal grid
-	    double dy = dom->dy/J22[ip];	
-	    double delta = sqrt(dx*dy);
-
-
-
+	if(LADFlag){
 	    double muchar, betachar, kappachar;
 	    double mu_eff   = mu[ip] + lad->mu_star[ip];
-	    double beta_eff = lad->beta_star[ip];
+	    double beta_eff = lad->beta_star[ip] + 1E-16;
 	    double k_eff = (ig->cp/ig->Pr)*mu[ip] + lad->k_star[ip]; 
 
 	    //The 0.2 is added in (Cook, 2007)
@@ -198,27 +181,29 @@ void CurvilinearCSolver::calcDtFromCFL(){
 	    kappachar = 0.2*rho1[ip]*sos[ip]*sos[ip]*delta*delta/(k_eff*T[ip]);
 
 	    //We want the minimum possible of these
-	    if(muchar < max_UChar_dx){
-		max_UChar_dx = muchar;
+	    if(muchar < lmin_dt){
+		lmin_dt = muchar;
 	    }
 
-	    if(betachar < max_UChar_dx){
-		max_UChar_dx = betachar;
+	    if(betachar < lmin_dt){
+		lmin_dt = betachar;
 	    }
 
-	    if(kappachar < max_UChar_dx){
-		max_UChar_dx = betachar;
+	    if(kappachar < lmin_dt){
+		lmin_dt = kappachar;
 	    }
 
+	    if(timeStep == 0){
+		lmin_dt = 1E-8;
+	    }
 	}
 
     }
-    
 
     if(ts->timeSteppingType==Options::CONST_CFL){
-	ts->dt = ts->CFL*max_UChar_dx;
+	ts->dt = ts->CFL*lmin_dt;
     }else if(ts->timeSteppingType==Options::CONST_DT){
-	ts->CFL = ts->dt/max_UChar_dx;
+	ts->CFL = ts->dt/lmin_dt;
     }
   
     if(timeStep == opt->timeStep){
@@ -965,6 +950,13 @@ void CurvilinearCSolver::checkSolution(){
         getRange(rhoV1, "RHOV", Nx, Ny);
         getRange(rhoE1, "RHOE", Nx, Ny);
         getRange(sos, "SOS", Nx, Ny);
+
+	if(LADFlag){
+	    getRange(lad->mu_star, "LAD MU", Nx, Ny);
+	    getRange(lad->beta_star, "LAD BETA", Nx, Ny);
+	    getRange(lad->k_star, "LAD K", Nx, Ny);
+	}
+
 /*
 	if(LESFlag){
 	    getRange(les->mu_sgs, "MU SGS", Nx, Ny, Nz, mpiRank);

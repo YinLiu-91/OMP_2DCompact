@@ -30,10 +30,6 @@ using namespace std::chrono;
 //#include "KenRK4.hpp"
 #include "LSLDDRK4.hpp"
 
-#include "AbstractDerivatives.hpp"
-#include "Pade6.hpp"
-
-#include "CurvilinearInterpolator.hpp"
 
 int main(int argc, char *argv[]){
 
@@ -168,7 +164,7 @@ int main(int argc, char *argv[]){
 //		r2 = (cs->msh->x[ip] - M_PI)*(cs->msh->x[ip] - M_PI) + (cs->msh->y[ip] - M_PI)*(cs->msh->y[ip] - M_PI); 
 //		r2 = (cs->msh->x[ip] - M_PI)*(cs->msh->x[ip] - M_PI); 
 
-		if(cs->msh->x[ip] > 0.0*M_PI && cs->msh->x[ip] < 1.0*M_PI){
+		if(cs->msh->x[ip] > 0.5*M_PI && cs->msh->x[ip] < 1.5*M_PI && cs->msh->y[ip] > 0.5*M_PI && cs->msh->y[ip] < 1.5*M_PI){
 		    pt = 1.0;
 		    rt = 1.0;
 		}else{
@@ -260,11 +256,14 @@ int main(int argc, char *argv[]){
 
     cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->p, "P", PngWriter::GREYSCALE));
     cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->rho2, "RHO", PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->rho2, "RHOBOW", PngWriter::RAINBOW));
     cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->U, "U", PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->T, "T", PngWriter::GREYSCALE));
     cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->mu_star,   "MUS",   PngWriter::GREYSCALE));
     cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->beta_star, "BETAS", PngWriter::GREYSCALE));
     cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->k_star,    "KS",    PngWriter::GREYSCALE));
     cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->fsw,    "FSW",    PngWriter::GREYSCALE));
+    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->vort,    "VORT",    PngWriter::GREYSCALE));
 //    cs_downcast->addImageOutput(new PngWriter(1, 1024, 1024, cs_downcast->lad->dFbeta4dx04,    "dFbeta0",    PngWriter::GREYSCALE));
 //    cs_downcast->addImageOutput(new PngWriter(1, 1024, 1024, cs_downcast->lad->dFbeta4dx14,    "dFbeta1",    PngWriter::GREYSCALE));
 //    cs_downcast->addImageOutput(new PngWriter(25, 1024, 1024, cs_downcast->lad->dFmu4dx04,    "dFmu0",    PngWriter::GREYSCALE));

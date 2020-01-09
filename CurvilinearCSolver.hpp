@@ -13,7 +13,7 @@
 #include "PngWriter.hpp"
 #include "CurvilinearInterpolator.hpp"
 #include "Pade6.hpp"
-//#include "Penta10.hpp"
+#include "Penta10.hpp"
 //#include "CD2.hpp"
 //#include "Compact8Filter.hpp"
 #include "Compact10Filter.hpp"
@@ -140,31 +140,24 @@ class CurvilinearCSolver: public AbstractCSolver{
 	    initializeSolverData();		    	    
 
 	    //Initialize our derivative calculations for each direction...
-            derivX = new Pade6(dom, bc->bcXType, AbstractDerivatives::DIRX);
-  	    derivY = new Pade6(dom, bc->bcYType, AbstractDerivatives::DIRY);
 
-	    //if(opt->xFDType == Options::CD2){
-	    //    derivX = new CD2(dom, bc->bcXType, AbstractDerivatives::DIRX);
-	    //}else if(opt->xFDType == Options::PADE6){
-	    //    derivX = new Pade6(dom, bc->bcXType, AbstractDerivatives::DIRX);
-	    //}else if(opt->xFDType == Options::PENTA10){
-	    //    derivX = new Penta10(dom, bc->bcXType, AbstractDerivatives::DIRX);
-	    //}else{
-	    //	cout << "Should never get here? unknown x-derivative" << endl;
- 	    //	MPI_Abort(MPI_COMM_WORLD, -10);
-	    //}
-/*
-	    if(opt->yFDType == Options::CD2){
-	        derivY = new CD2(dom, bc->bcYType, AbstractDerivatives::DIRY);
-	    }else if(opt->yFDType == Options::PADE6){
+	    if(opt->xFDType == Options::PADE6){
+	        derivX = new Pade6(dom, bc->bcXType, AbstractDerivatives::DIRX);
+	    }else if(opt->xFDType == Options::PENTA10){
+	        derivX = new Penta10(dom, bc->bcXType, AbstractDerivatives::DIRX);
+	    }else{
+	    	cout << "Should never get here? unknown x-derivative" << endl;
+		abort();
+	    }
+
+	    if(opt->yFDType == Options::PADE6){
 	        derivY = new Pade6(dom, bc->bcYType, AbstractDerivatives::DIRY);
 	    }else if(opt->yFDType == Options::PENTA10){
 	        derivY = new Penta10(dom, bc->bcYType, AbstractDerivatives::DIRY);
 	    }else{
 		cout << "Should never get here? unknown y-derivative" << endl;
-		MPI_Abort(MPI_COMM_WORLD, -10);
+		abort();
 	    }
-*/
 
 	    derivXi1 = derivX;
 	    derivXi2 = derivY;

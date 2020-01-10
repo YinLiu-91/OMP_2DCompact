@@ -1316,6 +1316,7 @@ void CurvilinearCSolver::writePlaneImageForVariable(PngWriter *pw){
     delete[] g;
     delete[] b;
     delete[] ff;
+    delete[] ff_ci;
 
 }
 

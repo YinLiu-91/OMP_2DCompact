@@ -35,6 +35,9 @@ class LADKawai: public AbstractLAD{
    
 	//Model coefficients 
 	C_mu   = 0.002;
+	if(cs->opt->turnOffASVFlag){	
+	    C_mu   = 0.0; //Not really the best way to turn this off, its still going to be calculated...
+	}
 	C_k    = 0.01;
 	C_beta = 1.75;
 

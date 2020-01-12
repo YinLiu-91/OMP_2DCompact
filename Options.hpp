@@ -115,6 +115,7 @@ class Options{
 	//LAD Stuff
 	string ladModel_str;
 	LADModel ladModel;
+	bool turnOffASVFlag;
 
 	//DSM LES Model Stuff
 	bool dumpCoeffRange;
@@ -186,7 +187,8 @@ class Options{
 	    ("LES.DSMTESTFILTER", po::value<int>(&testFilterType), "Type of test filter used in dynamic coefficient calculation")
 	    ("LES.DSMUSETAUKK", po::value<bool>(&useTaukk), "Whether or not to use taukk component in pressure calculation")
 	    ("LES.DSMCOEFFRANGE", po::value<bool>(&dumpCoeffRange), "Whether or not to dump the Smag. Coeff, CI, and Prt.")
-	    ("LAD.LADMODEL",	 po::value<string>(&ladModel_str), "Name of the LAD model");
+	    ("LAD.LADMODEL",	 po::value<string>(&ladModel_str), "Name of the LAD model")
+	    ("LAD.TURNASVOFF",	 po::value<bool>(&turnOffASVFlag), "Turn off Artificial Shear Viscosity component of LAD");
 
 	
 	    //Potentially include the style of computation options from CurvilinearCsolver? OCC vs. VANILLA etc.	
@@ -370,6 +372,7 @@ class Options{
 
 	//LAD model stuff
 	parseLADModelString("LAD.LADMODEL", ladModel_str, ladModel);
+	checkValue<bool>("LAD.TURNOFFASV", "turnOffASVFlag", turnOffASVFlag, false);
 
 
    }	

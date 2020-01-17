@@ -23,6 +23,7 @@ class Options{
                      ADIABATIC_WALL,
                      CONST_T_WALL,
                      MOVING_ADIABATIC_WALL,
+                     DIRTY_SLIP,
                      INLET};
         enum SpongeKind {RECTILINEAR, CYLINDRICAL};
 	

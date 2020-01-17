@@ -172,6 +172,8 @@ void Options::parseBCKindFromString(string vmKey, string inString, BCKind &curre
             currentType = PERIODIC;
         }else if(strcmp(inString.c_str(), "ADIABATIC_WALL")==0){
             currentType = ADIABATIC_WALL;
+        }else if(strcmp(inString.c_str(), "DIRTY_SLIP")==0){
+            currentType = DIRTY_SLIP;
         }else if(strcmp(inString.c_str(), "SPONGE")==0){
             currentType = SPONGE;
         }else if(strcmp(inString.c_str(), "CONST_T_WALL")==0){

@@ -76,6 +76,8 @@ void CurvilinearCSolver::setInitialConditions(){
     }
 
 
+
+
     if(bc->bcX1 == Options::ADIABATIC_WALL || bc->bcX1 == Options::CONST_T_WALL){
 	wallBCFlag = true;
         FOR_X1{
@@ -199,6 +201,137 @@ void CurvilinearCSolver::setInitialConditions(){
         }END_FORY1
 
    }
+
+   //Kind of not completely correct slip wall conditions? 
+  
+    if(bc->bcX0 == Options::DIRTY_SLIP){
+	wallBCFlag = true;
+	FOR_X0{
+
+	    int index[10] = FILL_GET_Xp;
+
+	    double Ucurv_t = 0.0;
+
+	
+	    double Vcurv_out[10];
+	    getDataFromIndex(Vcurv, index, 10, Vcurv_out);
+	    double Vcurv_t = derivX->calcNeumann(Vcurv_out);
+
+	    double detJ = J11[ip]*J22[ip]-J21[ip]*J12[ip];
+	    double Ji11 =  J22[ip]/detJ;
+	    double Ji22 =  J11[ip]/detJ;
+	    double Ji12 = -J12[ip]/detJ;
+	    double Ji21 = -J21[ip]/detJ;	
+
+            U[ip]  = Ji11*Ucurv_t + Ji12*Vcurv_t;
+            V[ip]  = Ji21*Ucurv_t + Ji22*Vcurv_t;
+
+            rhoU1[ip] = rho1[ip]*U[ip];
+            rhoV1[ip] = rho1[ip]*V[ip];
+
+	    double T_out[10];
+	    getDataFromIndex(T, index, 10, T_out);
+            T[ip] = derivX->calcNeumann(T_out);
+
+
+	}END_FORX0
+    }
+
+    if(bc->bcX1 == Options::DIRTY_SLIP){
+	wallBCFlag = true;
+	FOR_X1{
+
+	    int index[10] = FILL_GET_Xm;
+
+	    double Ucurv_t = 0.0;
+
+	
+	    double Vcurv_out[10];
+	    getDataFromIndex(Vcurv, index, 10, Vcurv_out);
+	    double Vcurv_t = derivX->calcNeumann(Vcurv_out);
+
+	    double detJ = J11[ip]*J22[ip]-J21[ip]*J12[ip];
+	    double Ji11 =  J22[ip]/detJ;
+	    double Ji22 =  J11[ip]/detJ;
+	    double Ji12 = -J12[ip]/detJ;
+	    double Ji21 = -J21[ip]/detJ;	
+
+            U[ip]  = Ji11*Ucurv_t + Ji12*Vcurv_t;
+            V[ip]  = Ji21*Ucurv_t + Ji22*Vcurv_t;
+
+            rhoU1[ip] = rho1[ip]*U[ip];
+            rhoV1[ip] = rho1[ip]*V[ip];
+
+	    double T_out[10];
+	    getDataFromIndex(T, index, 10, T_out);
+            T[ip] = derivX->calcNeumann(T_out);
+
+
+	}END_FORX1
+    }
+
+    if(bc->bcY0 == Options::DIRTY_SLIP){
+	wallBCFlag = true;
+	FOR_Y0{
+
+	    int index[10] = FILL_GET_Yp;
+
+	    double Ucurv_out[10];
+	    getDataFromIndex(Ucurv, index, 10, Ucurv_out);
+	    double Ucurv_t = derivY->calcNeumann(Ucurv_out);
+	
+	    double Vcurv_t = 0.0;
+
+	    double detJ = J11[ip]*J22[ip]-J21[ip]*J12[ip];
+	    double Ji11 =  J22[ip]/detJ;
+	    double Ji22 =  J11[ip]/detJ;
+	    double Ji12 = -J12[ip]/detJ;
+	    double Ji21 = -J21[ip]/detJ;	
+
+            U[ip]  = Ji11*Ucurv_t + Ji12*Vcurv_t;
+            V[ip]  = Ji21*Ucurv_t + Ji22*Vcurv_t;
+
+            rhoU1[ip] = rho1[ip]*U[ip];
+            rhoV1[ip] = rho1[ip]*V[ip];
+
+	    double T_out[10];
+	    getDataFromIndex(T, index, 10, T_out);
+            T[ip] = derivY->calcNeumann(T_out);
+
+	}END_FORY0
+    }
+
+    if(bc->bcY1 == Options::DIRTY_SLIP){
+	wallBCFlag = true;
+	FOR_Y1{
+
+	    int index[10] = FILL_GET_Ym;
+
+	    double Ucurv_out[10];
+	    getDataFromIndex(Ucurv, index, 10, Ucurv_out);
+	    double Ucurv_t = derivY->calcNeumann(Ucurv_out);
+	
+	    double Vcurv_t = 0.0;
+
+	    double detJ = J11[ip]*J22[ip]-J21[ip]*J12[ip];
+	    double Ji11 =  J22[ip]/detJ;
+	    double Ji22 =  J11[ip]/detJ;
+	    double Ji12 = -J12[ip]/detJ;
+	    double Ji21 = -J21[ip]/detJ;	
+
+            U[ip]  = Ji11*Ucurv_t + Ji12*Vcurv_t;
+            V[ip]  = Ji21*Ucurv_t + Ji22*Vcurv_t;
+
+            rhoU1[ip] = rho1[ip]*U[ip];
+            rhoV1[ip] = rho1[ip]*V[ip];
+
+	    double T_out[10];
+	    getDataFromIndex(T, index, 10, T_out);
+            T[ip] = derivY->calcNeumann(T_out);
+
+	}END_FORY1
+    }
+
 
     if(wallBCFlag == true){
 	//Need to update the pressure, sos, and rhoE fields at the boundaries with walls...

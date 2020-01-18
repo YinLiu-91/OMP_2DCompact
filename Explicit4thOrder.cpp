@@ -83,7 +83,7 @@ void Explicit4thOrder::Calc4thDirichlet(double *phi, double *dphidx){
     dphidx[2] = a13*phi[0] + a23*phi[1] + a33*phi[2] +               
                      a43*phi[3] + a53*phi[4];  
 
-    for(int ip = 3; ip < N-4; ip++){                                           
+    for(int ip = 3; ip < N-3; ip++){                                           
         dphidx[ip]  = (b/6.0)*(phi[ip+3] - 9.0*phi[ip+1] + 16.0*phi[ip] - 9.0*phi[ip-1] + phi[ip-3]);
         dphidx[ip] +=       a*(phi[ip+2] - 4.0*phi[ip+1] +  6.0*phi[ip] - 4.0*phi[ip-1] + phi[ip-2]);                                              
     }   

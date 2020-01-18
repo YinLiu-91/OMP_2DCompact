@@ -592,6 +592,143 @@ void CurvilinearCSolver::preStepBCHandling(){
     }
 */
 
+    if(bc->bcX0 == Options::DIRTY_SLIP){
+        FOR_X0{
+	    int index[10] = FILL_GET_Xp;
+	    double T_out[10];
+	    getDataFromIndex(T, index, 10, T_out);
+            T[ip] = derivX->calcNeumann(T_out);
+
+	    double Ucurv_t = 0.0;
+
+	    double Vcurv_out[10];
+	    getDataFromIndex(Vcurv, index, 10, Vcurv_out);
+	    double Vcurv_t = derivX->calcNeumann(Vcurv_out);
+
+	    double detJ = J11[ip]*J22[ip]-J21[ip]*J12[ip];
+	    double Ji11 =  J22[ip]/detJ;
+	    double Ji22 =  J11[ip]/detJ;
+	    double Ji12 = -J12[ip]/detJ;
+	    double Ji21 = -J21[ip]/detJ;	
+
+            U[ip]  = Ji11*Ucurv_t + Ji12*Vcurv_t;
+            V[ip]  = Ji21*Ucurv_t + Ji22*Vcurv_t;
+
+	    Ucurv[ip] = Ucurv_t;
+	    Vcurv[ip] = Vcurv_t;
+	
+            rhoUP[ip] = rhoP[ip]*U[ip];
+            rhoVP[ip] = rhoP[ip]*V[ip];
+
+	    p[ip] = ig->solvep_idealgas(rhoP[ip], T[ip]);
+	    rhoEP[ip] = ig->solverhoE(rhoP[ip], p[ip], U[ip], V[ip]);
+        }END_FORX0
+    }
+
+    if(bc->bcX1 == Options::DIRTY_SLIP){
+        FOR_X1{
+	    int index[10] = FILL_GET_Xm;
+	    double T_out[10];
+	    getDataFromIndex(T, index, 10, T_out);
+            T[ip] = derivX->calcNeumann(T_out);
+
+	    double Ucurv_t = 0.0;
+
+	    double Vcurv_out[10];
+	    getDataFromIndex(Vcurv, index, 10, Vcurv_out);
+	    double Vcurv_t = derivX->calcNeumann(Vcurv_out);
+
+	    double detJ = J11[ip]*J22[ip]-J21[ip]*J12[ip];
+	    double Ji11 =  J22[ip]/detJ;
+	    double Ji22 =  J11[ip]/detJ;
+	    double Ji12 = -J12[ip]/detJ;
+	    double Ji21 = -J21[ip]/detJ;	
+
+            U[ip]  = Ji11*Ucurv_t + Ji12*Vcurv_t;
+            V[ip]  = Ji21*Ucurv_t + Ji22*Vcurv_t;
+
+	    Ucurv[ip] = Ucurv_t;
+	    Vcurv[ip] = Vcurv_t;
+	
+            rhoUP[ip] = rhoP[ip]*U[ip];
+            rhoVP[ip] = rhoP[ip]*V[ip];
+
+	    p[ip] = ig->solvep_idealgas(rhoP[ip], T[ip]);
+	    rhoEP[ip] = ig->solverhoE(rhoP[ip], p[ip], U[ip], V[ip]);
+
+        }END_FORX1
+    }
+
+    if(bc->bcY0 == Options::DIRTY_SLIP){
+
+        FOR_Y0{
+
+	    int index[10] = FILL_GET_Yp;
+
+	    double T_out[10];
+	    getDataFromIndex(T, index, 10, T_out);
+            T[ip] = derivY->calcNeumann(T_out);
+
+	    double Ucurv_out[10];
+	    getDataFromIndex(Ucurv, index, 10, Ucurv_out);
+	    double Ucurv_t = derivY->calcNeumann(Ucurv_out);
+	
+	    double Vcurv_t = 0.0;
+
+	    double detJ = J11[ip]*J22[ip]-J21[ip]*J12[ip];
+	    double Ji11 =  J22[ip]/detJ;
+	    double Ji22 =  J11[ip]/detJ;
+	    double Ji12 = -J12[ip]/detJ;
+	    double Ji21 = -J21[ip]/detJ;	
+
+            U[ip]  = Ji11*Ucurv_t + Ji12*Vcurv_t;
+            V[ip]  = Ji21*Ucurv_t + Ji22*Vcurv_t;
+
+            rhoUP[ip] = rhoP[ip]*U[ip];
+            rhoVP[ip] = rhoP[ip]*V[ip];
+
+	    p[ip] = ig->solvep_idealgas(rhoP[ip], T[ip]);
+	    rhoEP[ip] = ig->solverhoE(rhoP[ip], p[ip], U[ip], V[ip]); 
+
+        }END_FORY0
+    }
+
+    if(bc->bcY1 == Options::DIRTY_SLIP){
+
+        FOR_Y1{
+
+	    int index[10] = FILL_GET_Ym;
+
+	    double T_out[10];
+	    getDataFromIndex(T, index, 10, T_out);
+            T[ip] = derivY->calcNeumann(T_out);
+
+	    double Ucurv_out[10];
+	    getDataFromIndex(Ucurv, index, 10, Ucurv_out);
+	    double Ucurv_t = derivY->calcNeumann(Ucurv_out);
+	
+	    double Vcurv_t = 0.0;
+
+	    double detJ = J11[ip]*J22[ip]-J21[ip]*J12[ip];
+	    double Ji11 =  J22[ip]/detJ;
+	    double Ji22 =  J11[ip]/detJ;
+	    double Ji12 = -J12[ip]/detJ;
+	    double Ji21 = -J21[ip]/detJ;	
+
+            U[ip]  = Ji11*Ucurv_t + Ji12*Vcurv_t;
+            V[ip]  = Ji21*Ucurv_t + Ji22*Vcurv_t;
+
+            rhoUP[ip] = rhoP[ip]*U[ip];
+            rhoVP[ip] = rhoP[ip]*V[ip];
+
+	    p[ip] = ig->solvep_idealgas(rhoP[ip], T[ip]);
+	    rhoEP[ip] = ig->solverhoE(rhoP[ip], p[ip], U[ip], V[ip]); 
+
+        }END_FORY1
+    }
+
+
+
 
 }
 
@@ -605,7 +742,7 @@ void CurvilinearCSolver::postStepBCHandling(){
     //ADIABATIC AND MOVING WALL BC// 
     ////////////////////////////////
 
-    if(bc->bcX0 == Options::ADIABATIC_WALL || bc->bcX0 == Options::MOVING_ADIABATIC_WALL || bc->bcX0 == Options::CONST_T_WALL){
+    if(bc->bcX0 == Options::ADIABATIC_WALL || bc->bcX0 == Options::MOVING_ADIABATIC_WALL || bc->bcX0 == Options::CONST_T_WALL || bc->bcX0 == Options::DIRTY_SLIP){
 	FOR_X0{
 	    rhok2[ip]  = -ts->dt*J[ip]*cont_1[ip];
 	    rhoUk2[ip] = 0.0;
@@ -614,7 +751,7 @@ void CurvilinearCSolver::postStepBCHandling(){
 	}END_FORX0
     }
 
-    if(bc->bcX1 == Options::ADIABATIC_WALL || bc->bcX1 == Options::MOVING_ADIABATIC_WALL || bc->bcX1 == Options::CONST_T_WALL){
+    if(bc->bcX1 == Options::ADIABATIC_WALL || bc->bcX1 == Options::MOVING_ADIABATIC_WALL || bc->bcX1 == Options::CONST_T_WALL || bc->bcX1 == Options::DIRTY_SLIP){
 	FOR_X1{
 	    rhok2[ip]  = -ts->dt*J[ip]*cont_1[ip];
 	    rhoUk2[ip] = 0.0;
@@ -623,7 +760,7 @@ void CurvilinearCSolver::postStepBCHandling(){
 	}END_FORX1
     }   
 
-    if(bc->bcY0 == Options::ADIABATIC_WALL || bc->bcY0 == Options::MOVING_ADIABATIC_WALL || bc->bcY0 == Options::CONST_T_WALL){
+    if(bc->bcY0 == Options::ADIABATIC_WALL || bc->bcY0 == Options::MOVING_ADIABATIC_WALL || bc->bcY0 == Options::CONST_T_WALL || bc->bcY0 == Options::DIRTY_SLIP ){
 	FOR_Y0{
 	    rhok2[ip]  = -ts->dt*J[ip]*cont_2[ip];
 	    rhoUk2[ip] = 0.0;
@@ -632,7 +769,7 @@ void CurvilinearCSolver::postStepBCHandling(){
 	}END_FORY0
     }
 
-    if(bc->bcY1 == Options::ADIABATIC_WALL || bc->bcY1 == Options::MOVING_ADIABATIC_WALL || bc->bcY1 == Options::CONST_T_WALL){
+    if(bc->bcY1 == Options::ADIABATIC_WALL || bc->bcY1 == Options::MOVING_ADIABATIC_WALL || bc->bcY1 == Options::CONST_T_WALL || bc->bcY1 == Options::DIRTY_SLIP){
 	FOR_Y1{
 	    rhok2[ip]  = -ts->dt*J[ip]*cont_2[ip];
 	    rhoUk2[ip] = 0.0;
